@@ -70,9 +70,9 @@ void flatenRenderModelsVertexData(const struct RenderModel_t * renderModel, floa
 import "C"
 
 import (
-    "fmt"
-    "runtime"
-    "unsafe"
+	"fmt"
+	"runtime"
+	"unsafe"
 )
 
 /*
@@ -84,77 +84,75 @@ type RenderModelTexture struct {
 */
 
 type RenderModel struct {
-    VertexData []float32
-    Indexes []uint32
-    TriangleCount uint32
+	VertexData    []float32
+	Indexes       []uint32
+	TriangleCount uint32
 
-    TextureWidth uint32
-    TextureHeight uint32
-    TextureBytes []byte
+	TextureWidth  uint32
+	TextureHeight uint32
+	TextureBytes  []byte
 }
 
 func newRenderModel() *RenderModel {
-    model := new(RenderModel)
-    return model
+	model := new(RenderModel)
+	return model
 }
-
 
 // RenderModels is an interface wrapper to IVRRenderModels.
 type RenderModels struct {
-    ptr *C.struct_VR_IVRRenderModels_FnTable
+	ptr *C.struct_VR_IVRRenderModels_FnTable
 }
 
 // RenderModelLoad syncrhonously loads the model.
 func (rm *RenderModels) RenderModelLoad(name string) (*RenderModel, error) {
-    var cModel *C.struct_RenderModel_t
-    var result C.EVRRenderModelError
-    csName := C.CString(name)
-    for {
-        result = C.rendermodels_LoadRenderModel_Async(rm.ptr, csName, &cModel)
-        if result != VRRenderModelErrorLoading {
-            break
-        }
-        runtime.Gosched()
-    }
-    C.free(unsafe.Pointer(csName))
+	var cModel *C.struct_RenderModel_t
+	var result C.EVRRenderModelError
+	csName := C.CString(name)
+	for {
+		result = C.rendermodels_LoadRenderModel_Async(rm.ptr, csName, &cModel)
+		if result != VRRenderModelErrorLoading {
+			break
+		}
+		runtime.Gosched()
+	}
+	C.free(unsafe.Pointer(csName))
 
-    // we now have the model, right?
-    if result != VRRenderModelErrorNone {
-        return nil, fmt.Errorf("Failed to load render model for %s: %s", name, GetErrorAsEnglish(int(result)))
-    }
+	// we now have the model, right?
+	if result != VRRenderModelErrorNone {
+		return nil, fmt.Errorf("Failed to load render model for %s: %s", name, GetErrorAsEnglish(int(result)))
+	}
 
-    var cTexture *C.struct_RenderModel_TextureMap_t
-    for {
-        result = C.rendermodels_LoadTexture_Async(rm.ptr, cModel.diffuseTextureId, &cTexture)
-        if result != VRRenderModelErrorLoading {
-            break
-        }
-        runtime.Gosched()
-    }
+	var cTexture *C.struct_RenderModel_TextureMap_t
+	for {
+		result = C.rendermodels_LoadTexture_Async(rm.ptr, cModel.diffuseTextureId, &cTexture)
+		if result != VRRenderModelErrorLoading {
+			break
+		}
+		runtime.Gosched()
+	}
 
-    // we now have the texture, right?
-    if result != VRRenderModelErrorNone {
-        return nil, fmt.Errorf("Failed to load render model texture for %s: %s", name, GetErrorAsEnglish(int(result)))
-    }
+	// we now have the texture, right?
+	if result != VRRenderModelErrorNone {
+		return nil, fmt.Errorf("Failed to load render model texture for %s: %s", name, GetErrorAsEnglish(int(result)))
+	}
 
-    // create the render model with the data from the C structures
-    model := newRenderModel()
-    model.VertexData = make([]float32, int(cModel.unVertexCount*8) )
-    model.Indexes = make([]uint32, int(cModel.unTriangleCount)*3)
-    model.TriangleCount = uint32(cModel.unTriangleCount)
-    C.flatenRenderModelsVertexData(cModel, (*C.float)(unsafe.Pointer(&model.VertexData[0])), (*C.uint)(unsafe.Pointer(&model.Indexes[0])))
+	// create the render model with the data from the C structures
+	model := newRenderModel()
+	model.VertexData = make([]float32, int(cModel.unVertexCount*8))
+	model.Indexes = make([]uint32, int(cModel.unTriangleCount)*3)
+	model.TriangleCount = uint32(cModel.unTriangleCount)
+	C.flatenRenderModelsVertexData(cModel, (*C.float)(unsafe.Pointer(&model.VertexData[0])), (*C.uint)(unsafe.Pointer(&model.Indexes[0])))
 
-    model.TextureWidth = uint32(cTexture.unWidth)
-    model.TextureHeight = uint32(cTexture.unHeight)
-    model.TextureBytes = make([]byte, model.TextureWidth * model.TextureHeight * 4)
-    C.flatenRenderModelsTextureData(cTexture, (*C.uint8_t)(unsafe.Pointer(&model.TextureBytes[0])))
+	model.TextureWidth = uint32(cTexture.unWidth)
+	model.TextureHeight = uint32(cTexture.unHeight)
+	model.TextureBytes = make([]byte, model.TextureWidth*model.TextureHeight*4)
+	C.flatenRenderModelsTextureData(cTexture, (*C.uint8_t)(unsafe.Pointer(&model.TextureBytes[0])))
 
-    C.rendermodels_FreeRenderModel(rm.ptr, cModel)
-    C.rendermodels_FreeTexture(rm.ptr, cTexture)
+	C.rendermodels_FreeRenderModel(rm.ptr, cModel)
+	C.rendermodels_FreeTexture(rm.ptr, cTexture)
 
-    return model, nil
+	return model, nil
 }
-
 
 /*
 TODO:

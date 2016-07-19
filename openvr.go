@@ -1,7 +1,6 @@
 // Copyright 2016, Timothy Bogdala <tdb@animal-machine.com>
 // See the LICENSE file for more details.
 
-
 package openvr
 
 /*
@@ -90,7 +89,7 @@ int rendermodels_SetInternalInterface() {
 */
 import "C"
 import (
-    "fmt"
+	"fmt"
 )
 
 // Mat4 is a 4x4 matrix in column-major order
@@ -111,50 +110,50 @@ type Vec4 [4]float32
 // Init initializes the internal VR api structers and on success will
 // return a System object with a valid IVRSystem interface ptr.
 func Init() (*System, error) {
-    // initialize the module _iToken value from the openvr api
-    e := C.initInternal(C.EVRApplicationType_VRApplication_Scene)
-    if e == C.EVRInitError_VRInitError_None {
-        sys := new(System)
-        sys.ptr = C._iSystem
-        return sys, nil
-    }
+	// initialize the module _iToken value from the openvr api
+	e := C.initInternal(C.EVRApplicationType_VRApplication_Scene)
+	if e == C.EVRInitError_VRInitError_None {
+		sys := new(System)
+		sys.ptr = C._iSystem
+		return sys, nil
+	}
 
-    errStr := GetErrorAsEnglish(int(e))
-    return nil, fmt.Errorf("%s", errStr)
+	errStr := GetErrorAsEnglish(int(e))
+	return nil, fmt.Errorf("%s", errStr)
 }
 
 // Shutdown calls the ShutdownInternal function on the VR library.
 func Shutdown() {
-    C.VR_ShutdownInternal();
+	C.VR_ShutdownInternal()
 }
 
 // GetErrorAsEnglish takes an EVRInitError enumeration value and returns a string.
 func GetErrorAsEnglish(e int) string {
-    cs := C.VR_GetVRInitErrorAsEnglishDescription(C.EVRInitError(e))
-    // NOTE: does cs need to be freed somehow?
-    return C.GoString(cs)
+	cs := C.VR_GetVRInitErrorAsEnglishDescription(C.EVRInitError(e))
+	// NOTE: does cs need to be freed somehow?
+	return C.GoString(cs)
 }
 
 // GetCompositor returns a new IVRCompositor interface.
 func GetCompositor() (*Compositor, error) {
-    e := C.compositor_SetInternalInterface()
-    if e == C.EVRInitError_VRInitError_None {
-        comp := new(Compositor)
-        comp.ptr = C._iCompositor
-        return comp, nil
-    }
-    cs := C.VR_GetVRInitErrorAsEnglishDescription(C.EVRInitError(e))
-    return nil, fmt.Errorf("%s", C.GoString(cs))
+	e := C.compositor_SetInternalInterface()
+	if e == C.EVRInitError_VRInitError_None {
+		comp := new(Compositor)
+		comp.ptr = C._iCompositor
+		return comp, nil
+	}
+	cs := C.VR_GetVRInitErrorAsEnglishDescription(C.EVRInitError(e))
+	return nil, fmt.Errorf("%s", C.GoString(cs))
 }
 
 // GetRenderModels returns a new IVRRenderModels interface.
 func GetRenderModels() (*RenderModels, error) {
-    e := C.rendermodels_SetInternalInterface()
-    if e == C.EVRInitError_VRInitError_None {
-        rm := new(RenderModels)
-        rm.ptr = C._iRenderModels
-        return rm, nil
-    }
-    cs := C.VR_GetVRInitErrorAsEnglishDescription(C.EVRInitError(e))
-    return nil, fmt.Errorf("%s", C.GoString(cs))
+	e := C.rendermodels_SetInternalInterface()
+	if e == C.EVRInitError_VRInitError_None {
+		rm := new(RenderModels)
+		rm.ptr = C._iRenderModels
+		return rm, nil
+	}
+	cs := C.VR_GetVRInitErrorAsEnglishDescription(C.EVRInitError(e))
+	return nil, fmt.Errorf("%s", C.GoString(cs))
 }
