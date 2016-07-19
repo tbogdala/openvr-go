@@ -1,0 +1,8 @@
+examples/basiccube/debug
+examples/basiccube/basiccube.exe
+examples/basiccube/openvr_api.dll
+examples/connectiontest/debug
+examples/connectiontest/connectiontest.exe
+examples/connectiontest/openvr_api.dll
+*.exe
+*.dll
