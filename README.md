@@ -5,12 +5,13 @@ Openvr-go is an [Go][golang] programming language wrapper for the [OpenVR SDK][o
 published by Valve for VR hardware.
 
 
+![basiccube][basiccube_ss]
+
 UNDER CONSTRUCTION
 ==================
 
 At present, it is very much in an alpha stage with new development happening to
 complete the API exposed by the OpenVR SDK.
-
 
 Requirements
 ------------
@@ -79,3 +80,4 @@ Projects in the `vendor` folder may have their own LICENSE file.
 [go-gl]: https://github.com/go-gl/glow
 [license-link]: https://raw.githubusercontent.com/tbogdala/openvr-go/master/LICENSE
 [openvr-git]: https://github.com/ValveSoftware/openvr
+[basiccube_ss]: https://raw.githubusercontent.com/tbogdala/openvr-go/master/examples/screenshots/example-basiccube.jpg
