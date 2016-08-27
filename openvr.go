@@ -4,20 +4,27 @@
 package openvr
 
 /*
-#cgo CPPFLAGS: -I${SRCDIR}/vendor/openvr/headers -std=c99
+#cgo CFLAGS: -I${SRCDIR}/vendor/openvr/headers -std=c99
 #cgo windows,386 LDFLAGS: -L${SRCDIR}/vendor/openvr/bin/win32 -lopenvr_api
 #cgo windows,amd64 LDFLAGS: -L${SRCDIR}/vendor/openvr/bin/win64 -lopenvr_api
+#cgo linux,amd64 LDFLAGS: -L${SRCDIR}/vendor/openvr/bin/win64 -lopenvr_api
 
 #include <stdio.h>
 #include <stdlib.h>
 #include "openvr_capi.h"
 
+#if defined(_WIN32)
+    #define IMPORT __declspec(dllimport)
+#else
+    #define IMPORT
+#endif
+
 // lets declare some externals from the openvr_api.dll
-__declspec( dllimport ) intptr_t VR_InitInternal( EVRInitError *peError, EVRApplicationType eType );
-__declspec( dllimport ) const char * VR_GetVRInitErrorAsEnglishDescription( EVRInitError error );
-__declspec( dllimport ) bool VR_IsInterfaceVersionValid(const char *interface);
-__declspec( dllimport ) void VR_ShutdownInternal();
-__declspec( dllimport ) intptr_t VR_GetGenericInterface( const char *pchInterfaceVersion, EVRInitError *peError );
+IMPORT intptr_t VR_InitInternal( EVRInitError *peError, EVRApplicationType eType );
+IMPORT const char * VR_GetVRInitErrorAsEnglishDescription( EVRInitError error );
+IMPORT bool VR_IsInterfaceVersionValid(const char *interface);
+IMPORT void VR_ShutdownInternal();
+IMPORT intptr_t VR_GetGenericInterface( const char *pchInterfaceVersion, EVRInitError *peError );
 
 // api tokens; set in initInternal()
 intptr_t _iToken;

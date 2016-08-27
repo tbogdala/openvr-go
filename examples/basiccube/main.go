@@ -260,19 +260,15 @@ func createScene(renderWidth, renderHeight uint32) {
 	renderer.ChangeResolution(int32(renderWidth), int32(renderHeight))
 
 	// put a light in there
-	light := renderer.NewLight()
-	//light.Position = mgl.Vec3{-10.0, 5.0, 10}
-	light.DiffuseColor = mgl.Vec4{1.0, 1.0, 1.0, 1.0}
-	light.Direction = mgl.Vec3{1.0, -0.5, -1.0}
+	light := renderer.NewDirectionalLight(mgl.Vec3{1.0, -0.5, -1.0})
 	light.DiffuseIntensity = 0.70
 	light.SpecularIntensity = 0.10
 	light.AmbientIntensity = 0.20
-	light.Attenuation = 1.0
 	renderer.ActiveLights[0] = light
 
 	// create a 2x2x2 cube to render
 	const cubeSize = 0.333 * 0.5
-	cube = fizzle.CreateCube("diffuse", -cubeSize, -cubeSize, -cubeSize, cubeSize, cubeSize, cubeSize)
+	cube = fizzle.CreateCube(-cubeSize, -cubeSize, -cubeSize, cubeSize, cubeSize, cubeSize)
 	cube.Core.Shader = diffuseShader
 	cube.Core.DiffuseColor = mgl.Vec4{0.9, 0.05, 0.05, 1.0}
 	cube.Core.SpecularColor = mgl.Vec4{1.0, 1.0, 1.0, 1.0}
@@ -760,7 +756,6 @@ func createRenderableForTrackedDevice(deviceIndex int) (*fizzle.Renderable, erro
 	const uintSize = 4
 	r := fizzle.NewRenderable()
 	r.Core = fizzle.NewRenderableCore()
-	r.ShaderName = "rendermodel"
 	r.FaceCount = renderModel.TriangleCount
 	r.Core.Shader = renderModelShader
 
