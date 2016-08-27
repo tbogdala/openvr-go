@@ -65,6 +65,13 @@ Partial implementation of the following interfaces:
 * IVRRenderModels
 
 
+Implementation Notes
+--------------------
+
+Some minor patches have been applied to the vendored openvr library version to
+better support linux.
+
+
 LICENSE
 =======
 

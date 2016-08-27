@@ -17,7 +17,12 @@
 #define EXTERN_C
 #endif
 
-#define OPENVR_FNTABLE_CALLTYPE __stdcall
+// [openvr-go]: gcc on linux doesn't have a __stdcall
+#if defined( _WIN32 )
+  #define OPENVR_FNTABLE_CALLTYPE __stdcall
+#else
+  #define OPENVR_FNTABLE_CALLTYPE
+#endif
 
 // OPENVR API export macro
 #if defined( _WIN32 ) && !defined( _X360 )
@@ -26,7 +31,7 @@
 	#elif defined( OPENVR_API_NODLL )
 	#define S_API EXTERN_C
 	#else
-	#define S_API extern "C" __declspec( dllimport ) 
+	#define S_API extern "C" __declspec( dllimport )
 	#endif // OPENVR_API_EXPORTS
 #elif defined( __GNUC__ )
 	#if defined( OPENVR_API_EXPORTS )
@@ -44,7 +49,8 @@
 
 #include <stdint.h>
 
-#if defined( __WIN32 )
+// [openvr-go]: added the __GNUC__ check for building on linux.
+#if defined( __WIN32 ) || defined( __GNUC__ )
 typedef char bool;
 #endif
 
@@ -1680,5 +1686,3 @@ S_API const char * VR_GetVRInitErrorAsEnglishDescription( EVRInitError error );
 #endif
 
 #endif // __OPENVR_API_FLAT_H__
-
-
