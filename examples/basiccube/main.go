@@ -8,6 +8,7 @@ import (
 	"runtime"
 
 	vr "github.com/tbogdala/openvr-go"
+	fizzlevr "github.com/tbogdala/openvr-go/aux/fizzlevr"
 
 	glfw "github.com/go-gl/glfw/v3.1/glfw"
 	mgl "github.com/go-gl/mathgl/mgl32"
@@ -20,9 +21,9 @@ import (
 )
 
 const (
-	windowWidth       = 1280
-	windowHeight      = 720
-	diffuseShaderPath = "./diffuse"
+	windowWidth     = 1280
+	windowHeight    = 720
+	basicShaderPath = "./basic"
 )
 
 type EyeFramebuffer struct {
@@ -38,10 +39,10 @@ var (
 	mainWindow        *glfw.Window
 	kbModel           *input.KeyboardModel
 	renderer          *forward.ForwardRenderer
-	diffuseShader     *fizzle.RenderShader
+	basicShader       *fizzle.RenderShader
 	cube              *fizzle.Renderable
-	deviceRenderables map[string]*fizzle.Renderable
 	renderModelShader *fizzle.RenderShader
+	deviceRenderables *fizzlevr.DeviceRenderables
 
 	// interfaces for openvr
 	vrSystem       *vr.System
@@ -129,6 +130,14 @@ func main() {
 	vr.Shutdown()
 }
 
+func createRenderModels(vrSystem *vr.System) {
+	var err error
+	deviceRenderables, err = fizzlevr.CreateDeviceRenderables(vrSystem, renderModelShader)
+	if err != nil {
+		fmt.Printf("Failed to load renderables for the connected devices. " + err.Error() + "\n")
+	}
+}
+
 // initGraphics creates an OpenGL window and initializes the required graphics libraries.
 // It will either succeed or panic.
 func initGraphics(title string, w int, h int) (*glfw.Window, graphics.GraphicsProvider) {
@@ -175,78 +184,17 @@ func setShouldClose() {
 func createShaders() error {
 	// load the diffuse shader for the cube
 	var err error
-	diffuseShader, err = fizzle.LoadShaderProgramFromFiles(diffuseShaderPath, nil)
+	basicShader, err = fizzle.LoadShaderProgramFromFiles(basicShaderPath, nil)
 	if err != nil {
 		return fmt.Errorf("Failed to compile and link the diffuse shader program!\n%v", err)
 	}
 
-	renderModelV := `#version 330
-        uniform mat4 mvp;
-        in vec4 position;
-        in vec3 normal;
-        in vec2 texCoord;
-
-        out vec2 v2TexCoord;
-        void main()
-        {
-    	   v2TexCoord = texCoord;
-	       gl_Position = mvp * vec4(position.xyz, 1);
-        }`
-
-	renderModelF := `#version 330
-        uniform sampler2D diffuse;
-        in vec2 v2TexCoord;
-        out vec4 outputColor;
-        void main()
-        {
-            outputColor = texture(diffuse, v2TexCoord);
-        }`
-
-	renderModelShader, err = fizzle.LoadShaderProgram(renderModelV, renderModelF, nil)
+	renderModelShader, err = fizzle.LoadShaderProgram(vr.ShaderRenderModelV, vr.ShaderRenderModelF, nil)
 	if err != nil {
 		return fmt.Errorf("Failed to compile and link the render model shader program!\n%v", err)
 	}
 
-	lensDistortionV := `#version 330
-        in vec4 position;
-        in vec2 v2UVredIn;
-        in vec2 v2UVGreenIn;
-        in vec2 v2UVblueIn;
-        noperspective  out vec2 v2UVred;
-        noperspective  out vec2 v2UVgreen;
-        noperspective  out vec2 v2UVblue;
-        void main()
-        {
-        	v2UVred = v2UVredIn;
-        	v2UVgreen = v2UVGreenIn;
-        	v2UVblue = v2UVblueIn;
-        	gl_Position = position;
-        }`
-
-	lensDistortionF := `#version 330
-        uniform sampler2D mytexture;
-
-        noperspective  in vec2 v2UVred;
-        noperspective  in vec2 v2UVgreen;
-        noperspective  in vec2 v2UVblue;
-
-        out vec4 outputColor;
-
-        void main()
-        {
-            float fBoundsCheck = ( (dot( vec2( lessThan( v2UVgreen.xy, vec2(0.05, 0.05)) ), vec2(1.0, 1.0))+dot( vec2( greaterThan( v2UVgreen.xy, vec2( 0.95, 0.95)) ), vec2(1.0, 1.0))) );
-        	if( fBoundsCheck > 1.0 ) {
-                outputColor = vec4( 0, 0, 1, 1.0 );
-            } else {
-        		float red = texture(mytexture, v2UVred).x;
-        		float green = texture(mytexture, v2UVgreen).y;
-        		float blue = texture(mytexture, v2UVblue).z;
-        		outputColor = vec4( red, green, blue, 1.0  );
-            }
-
-        }`
-
-	lensShader, err = fizzle.LoadShaderProgram(lensDistortionV, lensDistortionF, nil)
+	lensShader, err = fizzle.LoadShaderProgram(vr.ShaderLensDistortionV, vr.ShaderLensDistortionF, nil)
 	if err != nil {
 		return fmt.Errorf("Failed to compile and link the lens distortion shader program!\n%v", err)
 	}
@@ -263,13 +211,13 @@ func createScene(renderWidth, renderHeight uint32) {
 	light := renderer.NewDirectionalLight(mgl.Vec3{1.0, -0.5, -1.0})
 	light.DiffuseIntensity = 0.70
 	light.SpecularIntensity = 0.10
-	light.AmbientIntensity = 0.20
+	light.AmbientIntensity = 0.3
 	renderer.ActiveLights[0] = light
 
-	// create a 2x2x2 cube to render
-	const cubeSize = 0.333 * 0.5
+	// create a 1 ft. cube to render
+	const cubeSize = 0.30 * 0.5
 	cube = fizzle.CreateCube(-cubeSize, -cubeSize, -cubeSize, cubeSize, cubeSize, cubeSize)
-	cube.Core.Shader = diffuseShader
+	cube.Core.Shader = basicShader
 	cube.Core.DiffuseColor = mgl.Vec4{0.9, 0.05, 0.05, 1.0}
 	cube.Core.SpecularColor = mgl.Vec4{1.0, 1.0, 1.0, 1.0}
 	cube.Core.Shininess = 4.8
@@ -513,7 +461,7 @@ func renderControllers(perspective mgl.Mat4, view mgl.Mat4, camera fizzle.Camera
 		}
 
 		// get the renderable
-		r, err := createRenderableForTrackedDevice(int(i))
+		r, err := deviceRenderables.GetRenderableForTrackedDevice(int(i))
 		if err != nil {
 			fmt.Printf("renderControllers: failed to get the renderable for device #%d: %s\n", i, err.Error())
 			continue
@@ -700,109 +648,4 @@ func renderDistortion() {
 
 	gfx.BindVertexArray(0)
 	gfx.UseProgram(0)
-}
-
-func createRenderModels(vrSystem *vr.System) error {
-	// create the map to cache the renderables
-	deviceRenderables = make(map[string]*fizzle.Renderable)
-
-	// get the render models interface
-	var err error
-	vrRenderModels, err = vr.GetRenderModels()
-	if err != nil {
-		return err
-	}
-
-	// loop through all possible devices besides the first, which is the HMD,
-	// and try to load the model.
-	for i := vr.TrackedDeviceIndexHmd + 1; i < vr.MaxTrackedDeviceCount; i++ {
-		if vrSystem.IsTrackedDeviceConnected(uint32(i)) {
-			_, err := createRenderableForTrackedDevice(int(i))
-			if err != nil {
-				return fmt.Errorf("Failed to load renderable for device index %d; %v\n", i, err)
-			}
-		}
-	}
-
-	return nil
-}
-
-func createRenderableForTrackedDevice(deviceIndex int) (*fizzle.Renderable, error) {
-	// sanity check
-	if uint(deviceIndex) >= vr.MaxTrackedDeviceCount {
-		return nil, fmt.Errorf("Device index out of range.")
-	}
-
-	// get the name of the device
-	rendermodelName, errInt := vrSystem.GetStringTrackedDeviceProperty(deviceIndex, vr.PropRenderModelNameString)
-	if errInt != vr.TrackedPropSuccess {
-		return nil, fmt.Errorf("%s", vr.GetErrorAsEnglish(errInt))
-	}
-
-	// return a cached copy if there is one
-	existingRenderable, okay := deviceRenderables[rendermodelName]
-	if okay {
-		return existingRenderable, nil
-	}
-
-	// no cached copy, so load a new one
-	renderModel, err := vrRenderModels.RenderModelLoad(rendermodelName)
-	if err != nil {
-		return nil, err
-	}
-
-	// as a test, make a renderable with the data
-	const floatSize = 4
-	const uintSize = 4
-	r := fizzle.NewRenderable()
-	r.Core = fizzle.NewRenderableCore()
-	r.FaceCount = renderModel.TriangleCount
-	r.Core.Shader = renderModelShader
-
-	// create a VBO to hold the vertex data
-	r.Core.VertVBO = gfx.GenBuffer()
-	r.Core.UvVBO = r.Core.VertVBO
-	r.Core.NormsVBO = r.Core.VertVBO
-	r.Core.VertVBOOffset = 0
-	r.Core.NormsVBOOffset = floatSize * 3
-	r.Core.UvVBOOffset = floatSize * 6
-	r.Core.VBOStride = floatSize * (3 + 3 + 2) // vert / normal / uv
-	gfx.BindBuffer(graphics.ARRAY_BUFFER, r.Core.VertVBO)
-	gfx.BufferData(graphics.ARRAY_BUFFER, floatSize*len(renderModel.VertexData), gfx.Ptr(&renderModel.VertexData[0]), graphics.STATIC_DRAW)
-
-	// create a VBO to hold the face indexes
-	r.Core.ElementsVBO = gfx.GenBuffer()
-	gfx.BindBuffer(graphics.ELEMENT_ARRAY_BUFFER, r.Core.ElementsVBO)
-	gfx.BufferData(graphics.ELEMENT_ARRAY_BUFFER, uintSize*len(renderModel.Indexes), gfx.Ptr(&renderModel.Indexes[0]), graphics.STATIC_DRAW)
-
-	// upload the texture
-	r.Core.Tex0 = gfx.GenTexture()
-	gfx.ActiveTexture(graphics.TEXTURE0)
-	gfx.BindTexture(graphics.TEXTURE_2D, r.Core.Tex0)
-
-	gfx.TexImage2D(graphics.TEXTURE_2D, 0, graphics.RGBA, int32(renderModel.TextureWidth), int32(renderModel.TextureHeight),
-		0, graphics.RGBA, graphics.UNSIGNED_BYTE, gfx.Ptr(renderModel.TextureBytes), len(renderModel.TextureBytes))
-
-	// If this renders black ask yourself what's wrong. ;p
-	gfx.GenerateMipmap(graphics.TEXTURE_2D)
-
-	gfx.TexParameteri(graphics.TEXTURE_2D, graphics.TEXTURE_MAG_FILTER, graphics.LINEAR)
-	gfx.TexParameteri(graphics.TEXTURE_2D, graphics.TEXTURE_MIN_FILTER, graphics.LINEAR_MIPMAP_LINEAR)
-	gfx.TexParameteri(graphics.TEXTURE_2D, graphics.TEXTURE_WRAP_S, graphics.CLAMP_TO_EDGE)
-	gfx.TexParameteri(graphics.TEXTURE_2D, graphics.TEXTURE_WRAP_T, graphics.CLAMP_TO_EDGE)
-
-	/*
-		GLfloat fLargest;
-		glGetFloatv( GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &fLargest );
-		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, fLargest );
-	*/
-
-	gfx.BindTexture(graphics.TEXTURE_2D, 0)
-
-	// store the renderable
-	deviceRenderables[rendermodelName] = r
-	fmt.Printf("Loaded render model for %s\n", rendermodelName)
-
-	// return the new renderable
-	return r, nil
 }

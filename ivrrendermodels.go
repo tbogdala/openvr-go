@@ -129,7 +129,7 @@ func (rm *RenderModels) RenderModelLoad(name string) (*RenderModel, error) {
 
 	// we now have the texture, right?
 	if result != VRRenderModelErrorNone {
-		return nil, fmt.Errorf("Failed to load render model texture for %s: %s", name, GetErrorAsEnglish(int(result)))
+		return nil, fmt.Errorf("Failed to load render model texture for %s: %s (%d)", name, GetErrorAsEnglish(int(result)), result)
 	}
 
 	// create the render model with the data from the C structures
