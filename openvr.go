@@ -7,7 +7,8 @@ package openvr
 #cgo CFLAGS: -I${SRCDIR}/vendor/openvr/headers -std=c99
 #cgo windows,386 LDFLAGS: -L${SRCDIR}/vendor/openvr/bin/win32 -lopenvr_api
 #cgo windows,amd64 LDFLAGS: -L${SRCDIR}/vendor/openvr/bin/win64 -lopenvr_api
-#cgo linux,amd64 LDFLAGS: -L${SRCDIR}/vendor/openvr/bin/win64 -lopenvr_api
+#cgo linux,amd64 LDFLAGS: -L${SRCDIR}/vendor/openvr/bin/linux64 -lopenvr_api
+#cgo linux,386 LDFLAGS: -L${SRCDIR}/vendor/openvr/bin/linux32 -lopenvr_api
 
 #include <stdio.h>
 #include <stdlib.h>
