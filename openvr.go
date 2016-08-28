@@ -184,6 +184,18 @@ func GetRenderModels() (*RenderModels, error) {
 	return nil, fmt.Errorf("%s", C.GoString(cs))
 }
 
+// GetChaperone returns a new IVRChaperone interface.
+func GetChaperone() (*Chaperone, error) {
+	e := C.chaperone_SetInternalInterface()
+	if e == C.EVRInitError_VRInitError_None {
+		chap := new(Chaperone)
+		chap.ptr = C._iChaperone
+		return chap, nil
+	}
+	cs := C.VR_GetVRInitErrorAsEnglishDescription(C.EVRInitError(e))
+	return nil, fmt.Errorf("%s", C.GoString(cs))
+}
+
 // Mat34ToMat4 is a utility conversion function that takes a 3x4 matrix and outputs
 // a 4x4 matrix with an identity fourth row of {0,0,0,1}.
 func Mat34ToMat4(vrM34 *Mat34) (m4 Mat4) {
