@@ -7,4 +7,3 @@ examples/connectiontest/connectiontest
 examples/connectiontest/connectiontest.exe
 examples/connectiontest/openvr_api.dll
 *.exe
-*.dll
