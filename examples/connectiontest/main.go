@@ -45,6 +45,10 @@ func main() {
 	if err != nil {
 		panic("error getting IVRChaperone interface.")
 	}
+	calibrationState := vrChaperone.GetCalibrationState()
+	fmt.Printf("Calibration state: %d (1==OK, 100's==Warning, 200's==Error)\n", calibrationState)
 	playX, playZ := vrChaperone.GetPlayAreaSize()
 	fmt.Printf("Play area size: %f x %f\n", playX, playZ)
+	playRect := vrChaperone.GetPlayAreaRect()
+	fmt.Printf("Play area corners:\n\t%v\n\t%v\n\t%v\n\t%v\n", playRect[0], playRect[1], playRect[2], playRect[3])
 }
