@@ -32,6 +32,8 @@ intptr_t _iToken;
 struct VR_IVRSystem_FnTable* _iSystem;
 struct VR_IVRCompositor_FnTable* _iCompositor;
 struct VR_IVRRenderModels_FnTable* _iRenderModels;
+struct VR_IVRChaperone_FnTable* _iChaperone;
+
 
 // gets the api token and makes sure the interface is valid
 int initInternal(int appTypeEnum) {
@@ -93,6 +95,22 @@ int rendermodels_SetInternalInterface() {
     }
     return error;
 }
+
+int chaperone_SetInternalInterface() {
+    EVRInitError error = EVRInitError_VRInitError_None;
+    if (_iChaperone == NULL) {
+        char interfaceFnTable[256];
+        sprintf(interfaceFnTable, "FnTable:%s", IVRChaperone_Version);
+        _iChaperone = (struct VR_IVRChaperone_FnTable*) VR_GetGenericInterface(interfaceFnTable, &error);
+        if (error != EVRInitError_VRInitError_None) {
+            const char* msg = VR_GetVRInitErrorAsEnglishDescription(error);
+            printf("Error on getting IVRChaperone: %s\n", msg);
+            return error;
+        }
+    }
+    return error;
+}
+
 
 */
 import "C"
