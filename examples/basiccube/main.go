@@ -8,7 +8,7 @@ import (
 	"runtime"
 
 	vr "github.com/tbogdala/openvr-go"
-	fizzlevr "github.com/tbogdala/openvr-go/aux/fizzlevr"
+	fizzlevr "github.com/tbogdala/openvr-go/util/fizzlevr"
 
 	glfw "github.com/go-gl/glfw/v3.1/glfw"
 	mgl "github.com/go-gl/mathgl/mgl32"

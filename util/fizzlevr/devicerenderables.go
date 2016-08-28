@@ -45,16 +45,14 @@ func CreateDeviceRenderables(vrSystem *vr.System, shader *fizzle.RenderShader) (
 
 	// loop through all possible devices besides the first, which is the HMD,
 	// and try to load the model.
-	/*
-		for i := vr.TrackedDeviceIndexHmd + 1; i < vr.MaxTrackedDeviceCount; i++ {
-			if vrSystem.IsTrackedDeviceConnected(uint32(i)) {
-				_, err := deviceRenderables.GetRenderableForTrackedDevice(int(i))
-				if err != nil {
-					return nil, fmt.Errorf("Failed to load renderable for device index %d; %v\n", i, err)
-				}
+	for i := vr.TrackedDeviceIndexHmd + 1; i < vr.MaxTrackedDeviceCount; i++ {
+		if vrSystem.IsTrackedDeviceConnected(uint32(i)) {
+			_, err := deviceRenderables.GetRenderableForTrackedDevice(int(i))
+			if err != nil {
+				return nil, fmt.Errorf("Failed to load renderable for device index %d; %v\n", i, err)
 			}
 		}
-	*/
+	}
 
 	return deviceRenderables, nil
 }
@@ -68,7 +66,6 @@ func (dr *DeviceRenderables) GetRenderableForTrackedDevice(deviceIndex int) (*fi
 	}
 
 	// get the name of the device
-	fmt.Printf("dr == %v\n\n", dr)
 	rendermodelName, errInt := dr.vrSystem.GetStringTrackedDeviceProperty(deviceIndex, vr.PropRenderModelNameString)
 	if errInt != vr.TrackedPropSuccess {
 		return nil, fmt.Errorf("%s", vr.GetErrorAsEnglish(errInt))
