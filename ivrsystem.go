@@ -61,6 +61,7 @@ bool system_GetControllerState(struct VR_IVRSystem_FnTable* iSystem, TrackedDevi
 */
 import "C"
 import (
+	mgl "github.com/go-gl/mathgl/mgl32"
 	"unsafe"
 )
 
@@ -256,6 +257,39 @@ func (sys *System) GetControllerState(deviceIndex uint32, state *VRControllerSta
 		return true
 	}
 	return false
+}
+
+// EyeTransforms is a struct that contains the projection and translation
+// matrix transforms for each eye in the HMD.
+type EyeTransforms struct {
+	ProjectionLeft  mgl.Mat4 // left eye projection
+	ProjectionRight mgl.Mat4 // right eye projection
+	PositionLeft    mgl.Mat4 // left eye offset
+	PositionRight   mgl.Mat4 // right eye offset
+}
+
+// GetEyeTransforms returns a structure containing the projection and translation
+// matrixes for both eyes given the near/far settings passed in.
+func (sys *System) GetEyeTransforms(near, far float32) *EyeTransforms {
+	transforms := new(EyeTransforms)
+	var m Mat4
+	var m34 Mat34
+
+	sys.GetProjectionMatrix(EyeLeft, near, far, APIOpenGL, &m)
+	transforms.ProjectionLeft = mgl.Mat4(m)
+
+	sys.GetProjectionMatrix(EyeRight, near, far, APIOpenGL, &m)
+	transforms.ProjectionRight = mgl.Mat4(m)
+
+	sys.GetEyeToHeadTransform(EyeLeft, &m34)
+	transforms.PositionLeft = mgl.Mat4(Mat34ToMat4(&m34))
+	transforms.PositionLeft.Inv()
+
+	sys.GetEyeToHeadTransform(EyeRight, &m34)
+	transforms.PositionRight = mgl.Mat4(Mat34ToMat4(&m34))
+	transforms.PositionRight.Inv()
+
+	return transforms
 }
 
 //system_GetControllerState)(struct VR_IVRSystem_FnTable* iSystem, TrackedDeviceIndex_t unControllerDeviceIndex, VRControllerState_t * pControllerState) {

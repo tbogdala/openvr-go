@@ -16,15 +16,17 @@ complete the API exposed by the OpenVR SDK.
 Requirements
 ------------
 
-The wrapper library itself doesn't have any dependencies. The `connectiontest` sample
-in the `examples` folder also doesn't have any dependencies.
+* [Mathgl][mgl] - for 3d math
+
+The wrapper library itself doesn't have any dependencies besides [Mathgl][mgl]. 
+The `connectiontest` sample in the `examples` folder also doesn't have any 
+additional dependencies.
 
 The other samples are graphical and use the following libraries, though they are
 not imported by the core openvr-go module itself:
 
-* [Mathgl][mgl] - for 3d math
 * [GLFW][glfw-go] (v3.1) - creating windows and providing the OpenGL context
-* [Fizzle][fizzle] - provides the graphics engine
+* [Fizzle][fizzle] (v0.1.0) - provides the graphics engine
 * [Go GL][go-gl] - provides the backend implementation of OpenGL for [Fizzle][fizzle].
 
 Installation

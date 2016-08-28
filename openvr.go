@@ -166,6 +166,31 @@ func GetRenderModels() (*RenderModels, error) {
 	return nil, fmt.Errorf("%s", C.GoString(cs))
 }
 
+// Mat34ToMat4 is a utility conversion function that takes a 3x4 matrix and outputs
+// a 4x4 matrix with an identity fourth row of {0,0,0,1}.
+func Mat34ToMat4(vrM34 *Mat34) (m4 Mat4) {
+	m4[0] = vrM34[0]
+	m4[1] = vrM34[1]
+	m4[2] = vrM34[2]
+	m4[3] = 0.0
+
+	m4[4] = vrM34[3]
+	m4[5] = vrM34[4]
+	m4[6] = vrM34[5]
+	m4[7] = 0.0
+
+	m4[8] = vrM34[6]
+	m4[9] = vrM34[7]
+	m4[10] = vrM34[8]
+	m4[11] = 0.0
+
+	m4[12] = vrM34[9]
+	m4[13] = vrM34[10]
+	m4[14] = vrM34[11]
+	m4[15] = 1.0
+	return m4
+}
+
 var (
 	// ShaderRenderModelV is the render model vertex shader
 	ShaderRenderModelV = `#version 330

@@ -5,6 +5,7 @@ package fizzlevr
 
 import (
 	"fmt"
+	mgl "github.com/go-gl/mathgl/mgl32"
 
 	fizzle "github.com/tbogdala/fizzle"
 	graphics "github.com/tbogdala/fizzle/graphicsprovider"
@@ -91,8 +92,10 @@ func (dr *DeviceRenderables) GetRenderableForTrackedDevice(deviceIndex int) (*fi
 	r.FaceCount = renderModel.TriangleCount
 	r.Core.Shader = dr.Shader
 
-	// create a VBO to hold the vertex data
 	gfx := fizzle.GetGraphics()
+	gfx.BindVertexArray(r.Core.Vao)
+
+	// create a VBO to hold the vertex data
 	r.Core.VertVBO = gfx.GenBuffer()
 	r.Core.UvVBO = r.Core.VertVBO
 	r.Core.NormsVBO = r.Core.VertVBO
@@ -128,11 +131,78 @@ func (dr *DeviceRenderables) GetRenderableForTrackedDevice(deviceIndex int) (*fi
 		glGetFloatv( GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &fLargest );
 		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, fLargest );
 	*/
+
+	// setup the attribute bindings
+	shaderPosition := dr.Shader.GetAttribLocation("position")
+	if shaderPosition >= 0 {
+		gfx.BindBuffer(graphics.ARRAY_BUFFER, r.Core.VertVBO)
+		gfx.EnableVertexAttribArray(uint32(shaderPosition))
+		gfx.VertexAttribPointer(uint32(shaderPosition), 3, graphics.FLOAT, false, r.Core.VBOStride, gfx.PtrOffset(r.Core.VertVBOOffset))
+	}
+
+	shaderVertUv := dr.Shader.GetAttribLocation("texCoord")
+	if shaderVertUv >= 0 {
+		gfx.BindBuffer(graphics.ARRAY_BUFFER, r.Core.UvVBO)
+		gfx.EnableVertexAttribArray(uint32(shaderVertUv))
+		gfx.VertexAttribPointer(uint32(shaderVertUv), 2, graphics.FLOAT, false, r.Core.VBOStride, gfx.PtrOffset(r.Core.UvVBOOffset))
+	}
+
+	// unbind things to appease the OpenGL gods
 	gfx.BindTexture(graphics.TEXTURE_2D, 0)
+	gfx.BindVertexArray(0)
 
 	// store the renderable
 	dr.renderables[rendermodelName] = r
 
 	// return the new renderable
 	return r, nil
+}
+
+// RenderDevices will render all connected devices.
+func (dr *DeviceRenderables) RenderDevices(vrCompositor *vr.Compositor, perspective mgl.Mat4, view mgl.Mat4, camera fizzle.Camera) {
+	// only render if we have input focus
+	if dr.vrSystem.IsInputFocusCapturedByAnotherProcess() {
+		return
+	}
+
+	gfx := fizzle.GetGraphics()
+	shaderMvp := dr.Shader.GetUniformLocation("mvp")
+	shaderTex0 := dr.Shader.GetUniformLocation("diffuse")
+
+	// loop through all non-HMD devices
+	for i := vr.TrackedDeviceIndexHmd + 1; i < vr.MaxTrackedDeviceCount; i++ {
+		// make sure the pose is correct
+		pose := vrCompositor.GetRenderPose(i)
+		if !pose.PoseIsValid {
+			continue
+		}
+
+		// get the renderable
+		r, err := dr.GetRenderableForTrackedDevice(int(i))
+		if err != nil {
+			fmt.Printf("DeviceRenderables.RenderDevices(): failed to get the renderable for device #%d: %s\n", i, err.Error())
+			continue
+		}
+
+		gfx.UseProgram(dr.Shader.Prog)
+		gfx.BindVertexArray(r.Core.Vao)
+
+		// calculate the mvp based off of the model's pose
+		poseMat := mgl.Mat4(vr.Mat34ToMat4(&pose.DeviceToAbsoluteTracking))
+		mvp := perspective.Mul4(view).Mul4(poseMat)
+
+		if shaderMvp >= 0 {
+			gfx.UniformMatrix4fv(shaderMvp, 1, false, mvp)
+		}
+
+		if shaderTex0 >= 0 {
+			gfx.ActiveTexture(graphics.Texture(graphics.TEXTURE0))
+			gfx.BindTexture(graphics.TEXTURE_2D, r.Core.Tex0)
+			gfx.Uniform1i(shaderTex0, 0)
+		}
+
+		gfx.BindBuffer(graphics.ELEMENT_ARRAY_BUFFER, r.Core.ElementsVBO)
+		gfx.DrawElements(graphics.Enum(graphics.TRIANGLES), int32(r.FaceCount*3), graphics.UNSIGNED_INT, gfx.PtrOffset(0))
+		gfx.BindVertexArray(0)
+	}
 }
