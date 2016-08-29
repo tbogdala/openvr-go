@@ -69,9 +69,9 @@ import (
 // UVs range from 0 to 1 with 0,0 in the upper left corner of the
 // source render target. The 0,0 to 1,1 range covers a single eye.
 type DistortionCoordinates struct {
-	Red   Vec2
-	Green Vec2
-	Blue  Vec2
+	Red   mgl.Vec2
+	Green mgl.Vec2
+	Blue  mgl.Vec2
 }
 
 // System is an interface wrapper to IVRSystem.
@@ -88,7 +88,7 @@ func (sys *System) GetRecommendedRenderTargetSize() (uint32, uint32) {
 }
 
 // GetProjectionMatrix returns the projection matrix for the specified eye
-func (sys *System) GetProjectionMatrix(eye int, near, far float32, projectionType int, dest *Mat4) {
+func (sys *System) GetProjectionMatrix(eye int, near, far float32, projectionType int, dest *mgl.Mat4) {
 	m44 := C.system_GetProjectionMatrix(sys.ptr, C.EVREye(eye), C.float(near), C.float(far), C.EGraphicsAPIConvention(projectionType))
 
 	dest[0] = float32(m44.m[0][0])
@@ -115,7 +115,7 @@ func (sys *System) GetProjectionMatrix(eye int, near, far float32, projectionTyp
 // GetEyeToHeadTransform returns the transform from eye space to the head space. Eye space is the per-eye flavor of head
 // space that provides stereo disparity. Instead of Model * View * Projection the sequence is Model * View * Eye^-1 * Projection.
 // Normally View and Eye^-1 will be multiplied together and treated as View in your application.
-func (sys *System) GetEyeToHeadTransform(eye int, dest *Mat34) {
+func (sys *System) GetEyeToHeadTransform(eye int, dest *mgl.Mat3x4) {
 	m34 := C.system_GetEyeToHeadTransform(sys.ptr, C.EVREye(eye))
 
 	dest[0] = float32(m34.m[0][0])
@@ -272,8 +272,8 @@ type EyeTransforms struct {
 // matrixes for both eyes given the near/far settings passed in.
 func (sys *System) GetEyeTransforms(near, far float32) *EyeTransforms {
 	transforms := new(EyeTransforms)
-	var m Mat4
-	var m34 Mat34
+	var m mgl.Mat4
+	var m34 mgl.Mat3x4
 
 	sys.GetProjectionMatrix(EyeLeft, near, far, APIOpenGL, &m)
 	transforms.ProjectionLeft = mgl.Mat4(m)

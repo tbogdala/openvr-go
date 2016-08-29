@@ -116,22 +116,8 @@ int chaperone_SetInternalInterface() {
 import "C"
 import (
 	"fmt"
+	mgl "github.com/go-gl/mathgl/mgl32"
 )
-
-// Mat4 is a 4x4 matrix in column-major order
-type Mat4 [16]float32
-
-// Mat34 is a 3x4 matrix in column-major order
-type Mat34 [12]float32
-
-// Vec2 is a 2 diminensional vector of floats
-type Vec2 [2]float32
-
-// Vec3 is a 3 diminensional vector of floats
-type Vec3 [3]float32
-
-// Vec4 is a 4 diminensional vector of floats
-type Vec4 [4]float32
 
 // Init initializes the internal VR api structers and on success will
 // return a System object with a valid IVRSystem interface ptr.
@@ -198,7 +184,7 @@ func GetChaperone() (*Chaperone, error) {
 
 // Mat34ToMat4 is a utility conversion function that takes a 3x4 matrix and outputs
 // a 4x4 matrix with an identity fourth row of {0,0,0,1}.
-func Mat34ToMat4(vrM34 *Mat34) (m4 Mat4) {
+func Mat34ToMat4(vrM34 *mgl.Mat3x4) (m4 mgl.Mat4) {
 	m4[0] = vrM34[0]
 	m4[1] = vrM34[1]
 	m4[2] = vrM34[2]

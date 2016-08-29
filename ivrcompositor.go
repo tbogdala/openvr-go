@@ -42,12 +42,16 @@ EVRCompositorError compositor_SubmitSimple(struct VR_IVRCompositor_FnTable* iCom
 */
 import "C"
 
+import (
+	mgl "github.com/go-gl/mathgl/mgl32"
+)
+
 // TrackedDevicePose mirrors the OpenVR TrackedDevicePose_t structure.
 type TrackedDevicePose struct {
-	DeviceToAbsoluteTracking Mat34
-	Velocity                 Vec3 // velocity in tracker space in m/s
-	AngularVelocity          Vec3 // in radians/s
-	TrackingResult           int  // ETrackingResult enum value
+	DeviceToAbsoluteTracking mgl.Mat3x4
+	Velocity                 mgl.Vec3 // velocity in tracker space in m/s
+	AngularVelocity          mgl.Vec3 // in radians/s
+	TrackingResult           int      // ETrackingResult enum value
 	PoseIsValid              bool
 
 	// This indicates that there is a device connected for this spot in the pose array.
