@@ -1,0 +1,295 @@
+MinetestCore [W.I.P.]
+32 pixels TexturePack
+
+for Minetest Game 0.4.13
+Copyright (C) 2010-2012 celeron55, Perttu Ahola <celeron55@gmail.com>
+
+==========================
+
+License of media (textures) :
+
+Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0)
+http://creativecommons.org/licenses/by-sa/3.0/
+
+License of menu/header.png
+Copyright (C) 2015 paramat CC BY-SA 3.0
+
+Everything not listed in this file :
+Copyright (C) 2010-2012 celeron55, Perttu Ahola <celeron55@gmail.com>
+
+-----------------------
+
+If I have missed crediting anyone's work please notify me
+so that I can correct the oversight.
+  -Nappi
+
+Authors of original media files :
+-----------------------
+
+Created by celeron55 (CC BY-SA 3.0) :
+  door_glass_a.png
+  door_glass_b.png
+
+Created by Cisoun (WTFPL) :
+  default_aspen_tree_top.png (alternates folder)
+  default_jungletree.png
+  default_lava.png
+  default_leaves.png
+  default_sapling.png
+  default_sign_wall.png
+  default_stone.png
+  default_tree.png
+  default_tree_top.png
+  default_water.png
+  default_pine_needles.png
+  wool_*.png
+
+Originating from G4JC's Almost MC Texture Pack:
+  default_torch.png
+  default_torch_on_ceiling.png
+  default_torch_on_floor.png
+
+Created by RealBadAngel (WTFPL) :
+  default_water_source_animated.png
+  default_water_flowing_animated.png
+
+Created by VanessaE (WTFPL) :
+  default_nc_*.png
+  default_desert_sand.png
+  default_desert_stone.png
+  default_sand.png
+  default_jungletree_top.png
+  default_torch_animated.png
+  default_torch_on_ceiling_animated.png
+  default_torch_on_floor_animated.png
+  default_torch_on_floor.png
+  vessels_*.png
+  vmg_glowing_fungal.png
+  vmg_mushroom_giant_cap.png
+
+Created by VanessaE (GPL3) :
+  cottages_homedecor_shingles_wood.png
+  cottages_homedecor_shingles_asphalt.png
+  cottages_homedecor_shingles_terracotta.png
+  cottages_sleepingmat.png
+
+Created by Calinou (CC BY-SA) :
+  default_brick.png
+  default_papyrus.png
+  default_mineral_copper.png
+  default_torch_new_*.png
+  default_glass_detail.png
+
+Created by PilzAdam (WTFPL) :
+  default_jungleleaves.png
+  default_junglesapling.png
+  default_obsidian_glass.png
+  default_obsidian_shard.png
+  default_mineral_gold.png
+  default_snowball.png
+  farming_bread.png
+  farming_soil.png
+  farming_soil_wet.png
+  farming_soil_wet_side.png
+  farming_string.png
+
+Created by jojoa1997 (WTFPL) :
+  default_obsidian.png
+
+Created by InfinityProject (WTFPL) :
+  default_mineral_diamond.png
+
+Created by Splizard (CC BY-SA 3.0) :
+  default_snow.png
+  default_snow_side.png
+  default_pine_sapling.png
+
+Created by Zeg9 (CC BY-SA 3.0) :
+  default_coal_block.png
+
+Created by paramat (CC BY-SA 3.0) :
+  default_pinetree_top.png
+  default_pinewood.png
+  default_sandstone_brick.png
+  default_obsidian_brick.png
+  default_river_water.png
+  default_river_water_source_animated.png
+  default_river_water_flowing_animated.png
+  default_acacia_sapling.png
+  default_acacia_tree_top.png
+  default_acacia_wood.png
+  default_dry_grass.png
+  default_dry_grass_side.png
+  default_dry_grass_*.png
+  default_junglewood.png, derived from a texture by BlockMen (CC BY-SA 3.0)
+  default_grass.png, derived from a texture by Philipbenr (CC BY-SA 3.0)
+  default_grass_side.png, derived from a texture by Philipbenr (CC BY-SA 3.0)
+  default_stone_brick.png, derived from a texture by Cisoun (WTFPL)
+  default_desert_stone_brick.png, derived from a texture by VanessaE (WTFPL)
+
+Created by BlockMen (CC BY-SA 3.0) :
+  beds_bed_*.png
+  default_wood.png
+  default_clay_brick.png
+  default_tool_steelsword.png
+  default_diamond.png
+  default_book.png
+  default_tool_*.png
+  default_lava_source_animated.png
+  default_lava_flowing_animated.png
+  default_chest_*.png
+  default_mineral_mese.png
+  default_meselamp.png
+
+sofar (CC BY-SA 3.0):
+  default_book_written.png, based on default_book.png
+  default_aspen_sapling
+  default_aspen_leaves
+  default_aspen_tree
+  default_aspen_tree_top, derived from default_pine_tree_top (by paramat)
+  default_aspen_wood, derived from default_pine_wood (by paramat)
+  default_chest_wood.png
+  default_chest_wood_locked.png
+
+
+Created by Neuromancer (CC BY-SA 2.0) :
+  default_cobble.png, based on texture by Brane praefect
+  default_mossycobble.png, based on texture by Brane praefect
+
+Created by Neuromancer (CC BY-SA 3.0) :
+  default_dirt.png
+  default_furnace_*.png
+
+Created by Kilbith/jp ??? (WTFPL) :
+  trash_icon.png
+
+Created by Gambit (WTFPL) :
+  coral4.png
+  default_acacia_tree.png (alternates folder)
+  default_bronze_block.png
+  default_bronze_ingot.png
+  default_clay_lump.png
+  default_coal.png
+  default_copper_block.png
+  default_copper_ingot.png
+  default_copper_lump.png
+  default_diamond_block.png
+  default_gold_block.png
+  default_gold_ingot.png
+  default_gold_lump.png
+  default_grass_*.png
+  default_gravel.png
+  default_iron_lump.png
+  default_mese_block.png
+  default_mese_crystal.png
+  default_paper.png
+  default_pine_tree.png (alternates folder)
+  default_steel_block.png
+  default_steel_ingot.png
+  doors_steel.png
+  doors_steel_a.png
+  doors_steel_b.png
+  doors_trapdoor_steel.png
+  farming_cotton_*.png
+  farming_cotton_seed.png
+  farming_flour.png
+  farming_wheat.png
+  farming_wheat_*.png
+  farming_wheat_seed.png
+  fishing_*.png
+  flowers_mushroom_*.png
+  flowers_waterlily.png
+  gems_amethyst_block.png
+  gems_emerald_block.png
+  gems_emerald_gem.png
+  default_mese_block.png (alternates folder)
+  default_mese_crystal.png (alternates folder)
+  gems_pearl_block.png
+  gems_quartz_block.png
+  gems_ruby_block.png
+  gems_ruby_gem.png
+  gems_sapphire_block.png
+  gems_shadow_block.png
+  heart.png
+  hunger.png
+  moreores_mithril_block.png
+  moreores_mithril_ingot.png
+  moreores_silver_block.png
+  moreores_silver_ingot.png
+  moreores_tin_block.png
+  moreores_tin_ingot.png
+  oresplus_*.png
+  screwdriver.png
+  vessels_shelf.png
+  vessels_glass_fragments.png
+  vmg_banana_tree.png
+  xpanes_bar.png
+  xdecor_*.png
+
+Created by asl97 (WTFPL) :
+  default_ice.png
+
+Created by MasterGollum (License: WTFPL) :
+  darkage_*.png
+  farming_straw.png
+
+Created by Muadtralk (License: CC BY 3.0) :
+fire_basic_flame_animated.png
+
+Created by PenguinDad (CC BY-SA 4.0) :
+  door_glass.png
+  door_obsidian_glass.png
+
+Created by Krock (License: WTFPL) :
+  mining_autominer_*.png
+  mining_breaknode.png
+  mining_bridgebuilder_*.png
+  mining_grinder_front.png
+  mining_polished_cobble.png
+  mining_tunnelbomb_*.png
+
+  Created by Duane Robertson (License: WTFPL v2) :
+   vmg_birch_tree.png
+   vmg_bird_of_paradise.png
+   vmg_dirt_clayey.png
+   vmg_dirt_sandy.png
+   vmg_dirt_silty.png
+   vmg_gerbera.png
+   vmg_hibiscus.png
+   vmg_moon_weed.png
+   vmg_mushroom_giant_stem.png
+   vmg_mushroom_giant_under.png
+   vmg_orchid.png
+   vmg_red_clay.png
+   vmg_sand_with_rocks.png
+   vmg_silt.png
+
+
+
+Created by Duane Robertson (License: GPL3) :
+   vmg_fir_leaves.png, derived from the VMG textures by vlapsley
+   vmg_birch_leaves.png, derived from the VMG textures by vlapsley
+   vmg_cherry_blossom_leaves.png, derived from the VMG textures by vlapsley
+
+ Created by Philipbenr (License: GPL3) :
+   castle_battleaxe.png
+   castle_corner_stonewall*.png
+   castle_hide.png
+   castle_crossbow.png
+   castle_dungeon_stone.png
+   castle_jail_door_*.png
+   castle_pavement_brick.png
+   castle_rubble.png
+   castle_shield_*.png
+   castle_slate.png
+   castle_steel.png
+   castle_stonewall.png
+   castle_workbench_*.png
+
+ -----------------------
+
+If I have missed crediting anyone's work please notify me
+so that I can correct the oversight.
+  -Nappi
+
+-----------------------
