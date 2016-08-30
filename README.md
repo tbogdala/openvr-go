@@ -93,4 +93,4 @@ Projects in the `vendor` folder may have their own LICENSE file.
 [license-link]: https://raw.githubusercontent.com/tbogdala/openvr-go/master/LICENSE
 [openvr-git]: https://github.com/ValveSoftware/openvr
 [basiccube_ss]: https://raw.githubusercontent.com/tbogdala/openvr-go/master/examples/screenshots/example-basiccube.jpg
-[voxels_ss]: https://raw.githubusercontent.com/tbogdala/openvr-go/master/examples/screenshots/example-voxels.jpg
+[voxels_ss]: https://github.com/tbogdala/openvr-go/blob/development/examples/screenshots/example-voxels.jpg?raw=true
