@@ -114,6 +114,40 @@ func main() {
 	// eye framebuffers to the GLFW window.
 	distortionLens = fizzlevr.CreateDistortionLens(vrSystem, lensShader, eyeFramebufferLeft, eyeFramebufferRight)
 
+	// debug: do a little extra work right here to print out some debugging info.
+	// this isn't required for any functionality but exists as a test of some API calls.
+	// we even shoot 1 over on purpose in the loops to make sure the API call doesn't crash.
+	vrRenderModels, err := vr.GetRenderModels()
+	if err == nil {
+		renderModelCount := vrRenderModels.GetRenderModelCount()
+		fmt.Printf("Render Model count: %d\n", renderModelCount)
+		for mi := uint32(0); mi <= renderModelCount; mi++ {
+			modelName := vrRenderModels.GetRenderModelName(mi)
+			fmt.Printf("\trender model %d: %s\n", mi, modelName)
+
+			componentCount := vrRenderModels.GetComponentCount(modelName)
+			if componentCount <= 0 {
+				continue
+			}
+			fmt.Printf("\t\tcomponent count = %d\n", componentCount)
+			for ci := uint32(0); ci <= componentCount; ci++ {
+				componentName := vrRenderModels.GetComponentName(modelName, ci)
+				fmt.Printf("\t\t%d = %s ", ci, componentName)
+				if len(componentName) > 0 {
+					componentRenderModelName := vrRenderModels.GetComponentRenderModelName(modelName, componentName)
+					fmt.Printf("; render model = %s\n", componentRenderModelName)
+					// try to load this thing
+					componentModel, err2 := vrRenderModels.RenderModelLoad(componentRenderModelName)
+					if componentModel != nil && err2 == nil {
+						fmt.Printf("\t\tloaded model; %d faces\n", componentModel.TriangleCount)
+					}
+				} else {
+					fmt.Printf("\n")
+				}
+			}
+		}
+	}
+
 	// cache renderables for the connected devices
 	deviceRenderables, err = fizzlevr.CreateDeviceRenderables(vrSystem, renderModelShader)
 	if err != nil {
