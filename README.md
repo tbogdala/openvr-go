@@ -1,11 +1,11 @@
-Openvr-go v0.1.0
-================
+Openvr-go v0.1.0-development
+============================
 
 Openvr-go is an [Go][golang] programming language wrapper for the [OpenVR SDK][openvr-git]
 published by Valve for VR hardware.
 
 
-![basiccube][basiccube_ss]
+![voxels_ss][voxels_ss]
 
 UNDER CONSTRUCTION
 ==================
@@ -18,8 +18,8 @@ Requirements
 
 * [Mathgl][mgl] - for 3d math
 
-The wrapper library itself doesn't have any dependencies besides [Mathgl][mgl]. 
-The `connectiontest` sample in the `examples` folder also doesn't have any 
+The wrapper library itself doesn't have any dependencies besides [Mathgl][mgl].
+The `connectiontest` sample in the `examples` folder also doesn't have any
 additional dependencies.
 
 The other samples are graphical and use the following libraries, though they are
@@ -28,6 +28,9 @@ not imported by the core openvr-go module itself:
 * [GLFW][glfw-go] (v3.1) - creating windows and providing the OpenGL context
 * [Fizzle][fizzle] (v0.1.0) - provides the graphics engine
 * [Go GL][go-gl] - provides the backend implementation of OpenGL for [Fizzle][fizzle].
+
+Note: At present, some examples might required the development branch of [Fizzle][fizzle].
+You'll have to manually git checkout the `development` branch to compile these.
 
 Installation
 ------------
@@ -90,3 +93,4 @@ Projects in the `vendor` folder may have their own LICENSE file.
 [license-link]: https://raw.githubusercontent.com/tbogdala/openvr-go/master/LICENSE
 [openvr-git]: https://github.com/ValveSoftware/openvr
 [basiccube_ss]: https://raw.githubusercontent.com/tbogdala/openvr-go/master/examples/screenshots/example-basiccube.jpg
+[voxels_ss]: https://raw.githubusercontent.com/tbogdala/openvr-go/master/examples/screenshots/example-voxels.jpg
