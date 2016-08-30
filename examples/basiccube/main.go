@@ -160,6 +160,43 @@ func main() {
 		panic("Failed to get the compositor interface: " + err.Error())
 	}
 
+	// debug: print out some information about connected controllers
+	for i := vr.TrackedDeviceIndexHmd + 1; i < vr.MaxTrackedDeviceCount; i++ {
+		deviceClass := vrSystem.GetTrackedDeviceClass(int(i))
+		if deviceClass != vr.TrackedDeviceClassController {
+			continue
+		}
+		axis0Type, propErr := vrSystem.GetInt32TrackedDeviceProperty(int(i), vr.PropAxis0TypeInt32)
+		if propErr == vr.TrackedPropSuccess {
+			axis0TypeName := vrSystem.GetControllerAxisTypeNameFromEnum(int(axis0Type))
+			fmt.Printf("Controller device %d:\n\taxis0: type=%d(%s)\n", i, axis0Type, axis0TypeName)
+		}
+
+		axis1Type, propErr := vrSystem.GetInt32TrackedDeviceProperty(int(i), vr.PropAxis1TypeInt32)
+		if propErr == vr.TrackedPropSuccess {
+			axis1TypeName := vrSystem.GetControllerAxisTypeNameFromEnum(int(axis1Type))
+			fmt.Printf("Controller device %d:\n\taxis1: type=%d(%s)\n", i, axis1Type, axis1TypeName)
+		}
+
+		axis2Type, propErr := vrSystem.GetInt32TrackedDeviceProperty(int(i), vr.PropAxis2TypeInt32)
+		if propErr == vr.TrackedPropSuccess {
+			axis2TypeName := vrSystem.GetControllerAxisTypeNameFromEnum(int(axis2Type))
+			fmt.Printf("Controller device %d:\n\taxis2: type=%d(%s)\n", i, axis2Type, axis2TypeName)
+		}
+
+		axis3Type, propErr := vrSystem.GetInt32TrackedDeviceProperty(int(i), vr.PropAxis3TypeInt32)
+		if propErr == vr.TrackedPropSuccess {
+			axis3TypeName := vrSystem.GetControllerAxisTypeNameFromEnum(int(axis3Type))
+			fmt.Printf("Controller device %d:\n\taxis3: type=%d(%s)\n", i, axis3Type, axis3TypeName)
+		}
+
+		axis4Type, propErr := vrSystem.GetInt32TrackedDeviceProperty(int(i), vr.PropAxis4TypeInt32)
+		if propErr == vr.TrackedPropSuccess {
+			axis4TypeName := vrSystem.GetControllerAxisTypeNameFromEnum(int(axis4Type))
+			fmt.Printf("Controller device %d:\n\taxis4: type=%d(%s)\n", i, axis4Type, axis4TypeName)
+		}
+	}
+
 	////////////////////////////////////////////////////////////////////////////
 	// the main application loop
 	for !mainWindow.ShouldClose() {

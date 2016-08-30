@@ -86,6 +86,10 @@ type Chunk struct {
 	// when the Blocks array has value changes.
 	Colliders []physics.Collider
 
+	// BoxColliders is a slice of AABBoxes that mirrors the physics colliders.
+	// This can be used for faster raycasts since the voxels aren't rotating.
+	BoxColliders []*glider.AABBox
+
 	// Owner is the owning landscape Manager class. This will be nil if the Chunk
 	// has not been registered yet with a manager.
 	Owner *Manager
@@ -489,7 +493,7 @@ func (c *Chunk) buildVoxelRenderable(textureIndexes fizzle.TextureArrayIndexes) 
 // UpdateColliders should be called whenever the Blocks of the Chunk
 // change which could result in the pathing being different.
 func (c *Chunk) UpdateColliders() {
-	c.Colliders = c.buildPhysicsColliders()
+	c.Colliders, c.BoxColliders = c.buildColliders()
 }
 
 // collisionBlock is a temporary data structure used to create collision cubes for landscape blocks
@@ -497,8 +501,8 @@ type collisionBlock struct {
 	X, Y, StartZ, EndZ int
 }
 
-// buildPhysicsColliders will generate the landscape physics colliders
-func (c *Chunk) buildPhysicsColliders() []physics.Collider {
+// buildColliders will generate the landscape physics and AABB colliders
+func (c *Chunk) buildColliders() ([]physics.Collider, []*glider.AABBox) {
 	// the value used to see if the z-tracker location is not set
 	const unsetZ = -1
 
@@ -541,15 +545,29 @@ func (c *Chunk) buildPhysicsColliders() []physics.Collider {
 	} // y
 
 	results := make([]physics.Collider, 0, len(colliders))
+	boxResults := make([]*glider.AABBox, 0, len(colliders))
 	for _, cb := range colliders {
 		cb.X += c.X * ChunkSize
 		cb.Y += c.Y * ChunkSize
 		cb.StartZ += c.Z * ChunkSize
 		cb.EndZ += c.Z * ChunkSize
 		results = append(results, buildCollider(&cb))
+		boxResults = append(boxResults, buildBoxCollider(&cb))
 	}
 
-	return results
+	return results, boxResults
+}
+
+func buildBoxCollider(cb *collisionBlock) *glider.AABBox {
+	box := glider.NewAABBox()
+
+	length := float32(cb.EndZ - cb.StartZ + 1)
+	halfLength := float32(length) / 2.0
+
+	box.SetOffset3f(float32(cb.X)+0.5, float32(cb.Y)+0.5, float32(cb.StartZ)+halfLength)
+	box.Min = glider.Vec3{-0.5, -0.5, -halfLength}
+	box.Max = glider.Vec3{0.5, 0.5, halfLength}
+	return box
 }
 
 func buildCollider(cb *collisionBlock) physics.Collider {

@@ -188,7 +188,7 @@ func (dr *DeviceRenderables) RenderDevices(vrCompositor *vr.Compositor, perspect
 		gfx.BindVertexArray(r.Core.Vao)
 
 		// calculate the mvp based off of the model's pose
-		poseMat := mgl.Mat4(vr.Mat34ToMat4(&pose.DeviceToAbsoluteTracking))
+		poseMat := vr.Mat34ToMat4(&pose.DeviceToAbsoluteTracking)
 		mvp := perspective.Mul4(view).Mul4(poseMat)
 
 		if shaderMvp >= 0 {

@@ -22,14 +22,16 @@ import (
 	input "github.com/tbogdala/fizzle/input/glfwinput"
 	fizzlerenderer "github.com/tbogdala/fizzle/renderer"
 	forward "github.com/tbogdala/fizzle/renderer/forward"
+	glider "github.com/tbogdala/glider"
 	noisey "github.com/tbogdala/noisey"
 )
 
 const (
 	voxelShaderPath = "./assets/voxel"
+	colorShaderPath = "./assets/color"
 	nearView        = 0.1
 	farView         = 500.0
-	worldChunkSize  = 16
+	worldChunkSize  = 12
 	worldHeightGen  = 24
 )
 
@@ -44,6 +46,7 @@ var (
 	renderModelShader *fizzle.RenderShader
 	lensShader        *fizzle.RenderShader
 	voxelShader       *fizzle.RenderShader
+	colorShader       *fizzle.RenderShader
 
 	// interfaces for openvr
 	vrSystem          *vr.System
@@ -60,12 +63,13 @@ var (
 	hmdPose             mgl.Mat4
 	hmdLoc              mgl.Vec3
 
+	teleportLine   *fizzle.Renderable
 	chunkMan       *chunk.Manager
 	voxelTextures  *fizzle.TextureArray
 	playerPosition = mgl.Vec3{
-		float32(worldChunkSize / 2 * chunk.ChunkSize),
+		float32(float32(worldChunkSize) / 2.0 * chunk.ChunkSize),
 		float32(worldHeightGen + 2),
-		float32(worldChunkSize / 2 * chunk.ChunkSize)}
+		0.0} //float32(float32(worldChunkSize) / 2.0 * chunk.ChunkSize)}
 )
 
 func init() {
@@ -223,6 +227,11 @@ func createShaders() error {
 		return fmt.Errorf("Failed to compile and link the voxel shader program!\n%v", err)
 	}
 
+	colorShader, err = fizzle.LoadShaderProgramFromFiles(colorShaderPath, nil)
+	if err != nil {
+		return fmt.Errorf("Failed to compile and link the color shader program!\n%v", err)
+	}
+
 	return nil
 }
 
@@ -256,6 +265,8 @@ func createScene(renderWidth, renderHeight uint32) {
 }
 
 func handleInput() {
+	var controllerState vr.ControllerState
+
 	// advise GLFW to poll for input. without this the window appears to hang.
 	glfw.PollEvents()
 
@@ -267,7 +278,84 @@ func handleInput() {
 		proccessVREvent(&event)
 	}
 
-	// TODO: update controller states
+	// destroy any existing teleport lines
+	wasTeleporting := false
+	if teleportLine != nil {
+		teleportLine.Destroy()
+		teleportLine = nil
+		wasTeleporting = true
+	}
+
+	// check controller states
+	for i := vr.TrackedDeviceIndexHmd + 1; i < vr.MaxTrackedDeviceCount; i++ {
+		deviceClass := vrSystem.GetTrackedDeviceClass(int(i))
+		if deviceClass != vr.TrackedDeviceClassController {
+			continue
+		}
+
+		// get the axis state
+		vrSystem.GetControllerState(int(i), &controllerState)
+
+		// axis 1 should be trigger
+		const MaxTeleDist = float32(32.0)
+		triggerVal := controllerState.Axis[1].X
+		if triggerVal >= 0.99 {
+			tdp := vrCompositor.GetRenderPose(i)
+			forward := mgl.Vec4{0.0, 0.0, -1.0, 0.0}
+			orientation := tdp.DeviceToAbsoluteTracking.Mul4x1(forward) //vec3 return
+			controllerPosition := tdp.DeviceToAbsoluteTracking.Col(3)
+			rod := orientation.Mul(100.0)
+			endPosition := controllerPosition.Add(rod)
+			teleportLine = fizzle.CreateLineV(controllerPosition, endPosition)
+		} else if wasTeleporting && triggerVal > 0.0 {
+			tdp := vrCompositor.GetRenderPose(i)
+			forward := mgl.Vec4{0.0, 0.0, -1.0, 0.0}
+			playerTranslation := mgl.Mat3x4{1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, playerPosition[0], playerPosition[1], playerPosition[2]}
+			orientation := tdp.DeviceToAbsoluteTracking.Mul4x1(forward) //vec3 return
+			controller3 := tdp.DeviceToAbsoluteTracking.Col(3)
+			controller4 := mgl.Vec4{controller3[0], controller3[1], controller3[2], 1.0}
+			controllerWorldPosition := playerTranslation.Mul4x1(controller4)
+			//rod := orientation.Mul(MaxTeleDist)
+			//endWorldPosition := controllerWorldPosition.Add(rod)
+
+			// figure out where we hit
+			var teleRay glider.CollisionRay
+			teleRay.Origin = glider.Vec3(controllerWorldPosition)
+			teleRay.SetDirection(glider.Vec3(orientation))
+
+			closestCollision := float32(9999.0)
+			for _, c := range chunkMan.Chunks {
+				if c == nil {
+					continue
+				}
+				result, distance := c.AABBCollider.CollideVsRay(&teleRay)
+				if result == glider.Intersect && distance < MaxTeleDist {
+					// check chunk's colliders
+					for _, aabb := range c.BoxColliders {
+						fineCollide, fineDistance := aabb.CollideVsRay(&teleRay)
+						if fineCollide == glider.Intersect && fineDistance < closestCollision {
+							closestCollision = fineDistance
+						}
+					}
+				}
+			}
+
+			// if we got a distance shorter than max tele, then we found a collision, so teleport
+			if closestCollision < MaxTeleDist {
+				// for this voxel game, we don't want to teleport room-style,
+				// a la The Lab where you can see your play area outline.
+				//
+				// here we want to teleport the person, which means we have to
+				// add the reflection of the absolute controller offset.
+				teleVector := orientation.Mul(closestCollision)
+				teleDestination := controllerWorldPosition.Add(teleVector).Sub(controller3)
+				teleDestination[1] = teleDestination[1] + 2.0
+
+				// update player!
+				playerPosition = teleDestination
+			}
+		}
+	}
 }
 
 func proccessVREvent(event *vr.VREvent) {
@@ -318,17 +406,19 @@ func renderScene(eye int) {
 	gfx.Clear(graphics.COLOR_BUFFER_BIT | graphics.DEPTH_BUFFER_BIT)
 	gfx.Enable(graphics.DEPTH_TEST)
 
-	var perspective, view mgl.Mat4
+	var perspective, view, playerView mgl.Mat4
 	var camera FixedCamera
 	playerPosition := mgl.Translate3D(-playerPosition[0], -playerPosition[1], -playerPosition[2])
 	worldHmdPose := hmdPose.Mul4(playerPosition)
 	if eye == vr.EyeLeft {
-		view = eyeTransforms.PositionLeft.Mul4(worldHmdPose)
+		playerView = eyeTransforms.PositionLeft.Mul4(worldHmdPose)
+		view = eyeTransforms.PositionLeft.Mul4(hmdPose)
 		perspective = eyeTransforms.ProjectionLeft
 		camera.View = view
 		camera.Position = hmdLoc
 	} else {
-		view = eyeTransforms.PositionRight.Mul4(worldHmdPose)
+		playerView = eyeTransforms.PositionRight.Mul4(worldHmdPose)
+		view = eyeTransforms.PositionRight.Mul4(hmdPose)
 		perspective = eyeTransforms.ProjectionRight
 		camera.View = view
 		camera.Position = hmdLoc
@@ -340,7 +430,12 @@ func renderScene(eye int) {
 			continue
 		}
 		r := c.GetTheRenderable(voxelTextures.TextureIndexes)
-		renderer.DrawRenderableWithShader(r, voxelShader, customVoxelBinder, perspective, view, camera)
+		renderer.DrawRenderableWithShader(r, voxelShader, customVoxelBinder, perspective, playerView, camera)
+	}
+
+	// draw the teleport line if one is visible
+	if teleportLine != nil {
+		renderer.DrawLines(teleportLine, colorShader, nil, perspective, view, camera)
 	}
 
 	// now draw any devices that get rendered into the scene
@@ -484,12 +579,12 @@ func NewVoxelGenerator(seed1, seed2 int64) *VoxelGenerator {
 	lg.simplex2 = noisey.NewOpenSimplexGenerator(lg.r2)
 
 	// now setup the fBm noise generators and the land selector
-	lg.lofreq = noisey.NewFBMGenerator2D(&lg.simplex2, 2, 0.15, 1.8, 1.1)
+	lg.lofreq = noisey.NewFBMGenerator2D(&lg.simplex2, 3, 0.25, 1.8, 1.1)
 	lg.hifreq = noisey.NewFBMGenerator2D(&lg.simplex1, 5, 0.75, 2.1, 1.33)
-
-	lg.flatter = noisey.NewScale2D(&lg.lofreq, 0.4, 0.1, -1, 1)
 	lg.control = noisey.NewFBMGenerator2D(&lg.simplex2, 2, 0.5, 2.0, 1.0)
-	lg.mixer = noisey.NewSelect2D(&lg.flatter, &lg.lofreq, &lg.control, 0.4, 100, 0.2)
+
+	lg.flatter = noisey.NewScale2D(&lg.lofreq, 0.2, 0.1, -1, 1)
+	lg.mixer = noisey.NewSelect2D(&lg.flatter, &lg.lofreq, &lg.control, 0.3, 100, 0.2)
 	return lg
 }
 

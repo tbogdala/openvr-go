@@ -57,6 +57,13 @@ bool system_GetControllerState(struct VR_IVRSystem_FnTable* iSystem, TrackedDevi
     return iSystem->GetControllerState(unControllerDeviceIndex, pControllerState);
 }
 
+char* system_GetControllerAxisTypeNameFromEnum(struct VR_IVRSystem_FnTable* iSystem, EVRControllerAxisType eAxisType) {
+	return iSystem->GetControllerAxisTypeNameFromEnum(eAxisType);
+}
+
+uint32_t system_GetInt32TrackedDeviceProperty(struct VR_IVRSystem_FnTable* iSystem, TrackedDeviceIndex_t unDeviceIndex, ETrackedDeviceProperty prop,ETrackedPropertyError * pError) {
+    return _iSystem->GetInt32TrackedDeviceProperty(unDeviceIndex, prop, pError);
+}
 
 */
 import "C"
@@ -161,7 +168,7 @@ func (sys *System) IsTrackedDeviceConnected(deviceIndex uint32) bool {
 // To determine which devices exist on the system, just loop from 0 to k_unMaxTrackedDeviceCount and check
 // the device class. Every device with something other than TrackedDevice_Invalid is associated with an
 // actual tracked device.
-func (sys *System) GetTrackedDeviceClass(deviceIndex uint32) int {
+func (sys *System) GetTrackedDeviceClass(deviceIndex int) int {
 	result := C.system_GetTrackedDeviceClass(sys.ptr, C.TrackedDeviceIndex_t(deviceIndex))
 	return int(result)
 }
@@ -218,16 +225,18 @@ func (sys *System) PollNextEvent(event *VREvent) bool {
 	return false
 }
 
-type VRControllerAxis struct {
+// ControllerAxis represents the state of joystick and track pads.
+type ControllerAxis struct {
 	X float32
 	Y float32
 }
 
-type VRControllerState struct {
+// ControllerState is the current state of a controller
+type ControllerState struct {
 	PacketNum     uint32
 	ButtonPressed uint64
 	ButtonTouched uint64
-	Axis          [5]VRControllerAxis
+	Axis          [ControllerStateAxisCount]ControllerAxis
 }
 
 var (
@@ -237,23 +246,17 @@ var (
 
 // GetControllerState fills the supplied struct with the current state of the controller.
 // Returns false if the controller index is invalid.
-func (sys *System) GetControllerState(deviceIndex uint32, state *VRControllerState) bool {
+func (sys *System) GetControllerState(deviceIndex int, state *ControllerState) bool {
 	result := C.system_GetControllerState(sys.ptr, C.TrackedDeviceIndex_t(deviceIndex), &controllerStateBuffer)
 
 	if result != 0 {
 		state.PacketNum = uint32(controllerStateBuffer.unPacketNum)
 		state.ButtonPressed = uint64(controllerStateBuffer.ulButtonPressed)
 		state.ButtonTouched = uint64(controllerStateBuffer.ulButtonTouched)
-		state.Axis[0].X = float32(controllerStateBuffer.rAxis[0].x)
-		state.Axis[0].Y = float32(controllerStateBuffer.rAxis[0].y)
-		state.Axis[1].X = float32(controllerStateBuffer.rAxis[1].x)
-		state.Axis[1].Y = float32(controllerStateBuffer.rAxis[1].y)
-		state.Axis[2].X = float32(controllerStateBuffer.rAxis[2].x)
-		state.Axis[2].Y = float32(controllerStateBuffer.rAxis[2].y)
-		state.Axis[3].X = float32(controllerStateBuffer.rAxis[3].x)
-		state.Axis[3].Y = float32(controllerStateBuffer.rAxis[3].y)
-		state.Axis[4].X = float32(controllerStateBuffer.rAxis[4].x)
-		state.Axis[4].Y = float32(controllerStateBuffer.rAxis[4].y)
+		for i := uint(0); i < ControllerStateAxisCount; i++ {
+			state.Axis[i].X = float32(controllerStateBuffer.rAxis[i].x)
+			state.Axis[i].Y = float32(controllerStateBuffer.rAxis[i].y)
+		}
 		return true
 	}
 	return false
@@ -283,16 +286,29 @@ func (sys *System) GetEyeTransforms(near, far float32) *EyeTransforms {
 
 	sys.GetEyeToHeadTransform(EyeLeft, &m34)
 	transforms.PositionLeft = mgl.Mat4(Mat34ToMat4(&m34))
-	transforms.PositionLeft.Inv()
+	transforms.PositionLeft = transforms.PositionLeft.Inv()
 
 	sys.GetEyeToHeadTransform(EyeRight, &m34)
 	transforms.PositionRight = mgl.Mat4(Mat34ToMat4(&m34))
-	transforms.PositionRight.Inv()
+	transforms.PositionRight = transforms.PositionRight.Inv()
 
 	return transforms
 }
 
-//system_GetControllerState)(struct VR_IVRSystem_FnTable* iSystem, TrackedDeviceIndex_t unControllerDeviceIndex, VRControllerState_t * pControllerState) {
+// GetControllerAxisTypeNameFromEnum returns the name of an EVRControllerAxisType enum value
+func (sys *System) GetControllerAxisTypeNameFromEnum(axisType int) string {
+	cAxisName := C.system_GetControllerAxisTypeNameFromEnum(sys.ptr, C.EVRControllerAxisType(axisType))
+	axisName := C.GoString(cAxisName)
+	return axisName
+}
+
+// GetInt32TrackedDeviceProperty returns a int32 property. If the device index is not valid or the property is
+// not valid it will return 0. The second int returned correspnds to the ETrackedPropertyError enumeration.
+func (sys *System) GetInt32TrackedDeviceProperty(deviceIndex int, property int) (int32, int) {
+	var cErrorVal C.ETrackedPropertyError
+	cInt32Prop := C.system_GetInt32TrackedDeviceProperty(sys.ptr, C.TrackedDeviceIndex_t(deviceIndex), C.ETrackedDeviceProperty(property), &cErrorVal)
+	return int32(cInt32Prop), int(cErrorVal)
+}
 
 /* TODO List:
 
@@ -313,7 +329,6 @@ TrackedDeviceIndex_t (OPENVR_FNTABLE_CALLTYPE *GetTrackedDeviceIndexForControlle
 ETrackedControllerRole (OPENVR_FNTABLE_CALLTYPE *GetControllerRoleForTrackedDeviceIndex)(TrackedDeviceIndex_t unDeviceIndex);
 bool (OPENVR_FNTABLE_CALLTYPE *GetBoolTrackedDeviceProperty)(TrackedDeviceIndex_t unDeviceIndex, ETrackedDeviceProperty prop, ETrackedPropertyError * pError);
 float (OPENVR_FNTABLE_CALLTYPE *GetFloatTrackedDeviceProperty)(TrackedDeviceIndex_t unDeviceIndex, ETrackedDeviceProperty prop, ETrackedPropertyError * pError);
-int32_t (OPENVR_FNTABLE_CALLTYPE *GetInt32TrackedDeviceProperty)(TrackedDeviceIndex_t unDeviceIndex, ETrackedDeviceProperty prop, ETrackedPropertyError * pError);
 uint64_t (OPENVR_FNTABLE_CALLTYPE *GetUint64TrackedDeviceProperty)(TrackedDeviceIndex_t unDeviceIndex, ETrackedDeviceProperty prop, ETrackedPropertyError * pError);
 struct HmdMatrix34_t (OPENVR_FNTABLE_CALLTYPE *GetMatrix34TrackedDeviceProperty)(TrackedDeviceIndex_t unDeviceIndex, ETrackedDeviceProperty prop, ETrackedPropertyError * pError);
 char * (OPENVR_FNTABLE_CALLTYPE *GetPropErrorNameFromEnum)(ETrackedPropertyError error);
@@ -323,7 +338,6 @@ struct HiddenAreaMesh_t (OPENVR_FNTABLE_CALLTYPE *GetHiddenAreaMesh)(EVREye eEye
 bool (OPENVR_FNTABLE_CALLTYPE *GetControllerStateWithPose)(ETrackingUniverseOrigin eOrigin, TrackedDeviceIndex_t unControllerDeviceIndex, VRControllerState_t * pControllerState, struct TrackedDevicePose_t * pTrackedDevicePose);
 void (OPENVR_FNTABLE_CALLTYPE *TriggerHapticPulse)(TrackedDeviceIndex_t unControllerDeviceIndex, uint32_t unAxisId, unsigned short usDurationMicroSec);
 char * (OPENVR_FNTABLE_CALLTYPE *GetButtonIdNameFromEnum)(EVRButtonId eButtonId);
-char * (OPENVR_FNTABLE_CALLTYPE *GetControllerAxisTypeNameFromEnum)(EVRControllerAxisType eAxisType);
 bool (OPENVR_FNTABLE_CALLTYPE *CaptureInputFocus)();
 void (OPENVR_FNTABLE_CALLTYPE *ReleaseInputFocus)();
 uint32_t (OPENVR_FNTABLE_CALLTYPE *DriverDebugRequest)(TrackedDeviceIndex_t unDeviceIndex, char * pchRequest, char * pchResponseBuffer, uint32_t unResponseBufferSize);
