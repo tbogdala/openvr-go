@@ -29,7 +29,7 @@ const (
 	voxelShaderPath = "./assets/voxel"
 	nearView        = 0.1
 	farView         = 500.0
-	worldChunkSize  = 24
+	worldChunkSize  = 16
 	worldHeightGen  = 24
 )
 
@@ -410,7 +410,7 @@ func createVoxels(chunkLength, landScale int) {
 	chunkMan = chunk.NewManager(chunkLength, 0, 0, 0)
 
 	// generate the basic land mass
-	for y := 0; y < landScale/chunk.ChunkSize; y++ {
+	for y := 0; y <= landScale/chunk.ChunkSize; y++ {
 		yOffset := y * chunk.ChunkSize
 		for x := 0; x < chunkLength; x++ {
 			xOffset := x * chunk.ChunkSize

@@ -2,9 +2,16 @@ examples/basiccube/debug
 examples/basiccube/basiccube
 examples/basiccube/basiccube.exe
 examples/basiccube/openvr_api.dll
+
 examples/connectiontest/debug
 examples/connectiontest/connectiontest
 examples/connectiontest/connectiontest.exe
 examples/connectiontest/openvr_api.dll
+
+examples/voxels/debug
+examples/voxels/voxels
+examples/voxels/voxels.exe
+examples/voxels/openvr_api.dll
+
 *.exe
 *.swp
