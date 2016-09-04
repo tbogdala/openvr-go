@@ -112,9 +112,9 @@ func (dr *DeviceRenderables) GetRenderableForTrackedDevice(deviceIndex int) (*fi
 	gfx.BufferData(graphics.ELEMENT_ARRAY_BUFFER, uintSize*len(renderModel.Indexes), gfx.Ptr(&renderModel.Indexes[0]), graphics.STATIC_DRAW)
 
 	// upload the texture
-	r.Core.Tex0 = gfx.GenTexture()
+	r.Core.Tex[0] = gfx.GenTexture()
 	gfx.ActiveTexture(graphics.TEXTURE0)
-	gfx.BindTexture(graphics.TEXTURE_2D, r.Core.Tex0)
+	gfx.BindTexture(graphics.TEXTURE_2D, r.Core.Tex[0])
 
 	gfx.TexImage2D(graphics.TEXTURE_2D, 0, graphics.RGBA, int32(renderModel.TextureWidth), int32(renderModel.TextureHeight),
 		0, graphics.RGBA, graphics.UNSIGNED_BYTE, gfx.Ptr(renderModel.TextureBytes), len(renderModel.TextureBytes))
@@ -197,7 +197,7 @@ func (dr *DeviceRenderables) RenderDevices(vrCompositor *vr.Compositor, perspect
 
 		if shaderTex0 >= 0 {
 			gfx.ActiveTexture(graphics.Texture(graphics.TEXTURE0))
-			gfx.BindTexture(graphics.TEXTURE_2D, r.Core.Tex0)
+			gfx.BindTexture(graphics.TEXTURE_2D, r.Core.Tex[0])
 			gfx.Uniform1i(shaderTex0, 0)
 		}
 
