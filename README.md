@@ -1,5 +1,5 @@
-Openvr-go v0.1.0-development
-============================
+Openvr-go v0.2.0
+================
 
 Openvr-go is an [Go][golang] programming language wrapper for the [OpenVR SDK][openvr-git]
 published by Valve for VR hardware.
@@ -26,7 +26,7 @@ The other samples are graphical and use the following libraries, though they are
 not imported by the core openvr-go module itself:
 
 * [GLFW][glfw-go] (v3.1) - creating windows and providing the OpenGL context
-* [Fizzle][fizzle] (v0.1.0) - provides the graphics engine
+* [Fizzle][fizzle] (v0.2.0) - provides the graphics engine
 * [Go GL][go-gl] - provides the backend implementation of OpenGL for [Fizzle][fizzle].
 
 Note: At present, some examples might required the development branch of [Fizzle][fizzle].
@@ -84,6 +84,10 @@ Original source code in openvr-go is released under the BSD license. See the
 [LICENSE][license-link] file for more details.
 
 Projects in the `vendor` folder may have their own LICENSE file.
+
+The MTCORE32px texture pack files in `examples/voxels/assets/textures` are licensed
+CC BY-SA 3.0 by celeron55, Perttu Ahola.
+https://github.com/Napiophelios/MTCORE32px
 
 [golang]: https://golang.org/
 [fizzle]: https://github.com/tbogdala/fizzle
