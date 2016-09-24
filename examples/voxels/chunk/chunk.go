@@ -452,15 +452,8 @@ func (c *Chunk) buildVoxelRenderable(textureIndexes fizzle.TextureArrayIndexes) 
 	r.Location[1] = float32(c.Y * ChunkSize)
 	r.Location[2] = float32(c.Z * ChunkSize)
 
-	r.Core.DiffuseColor[0] = 1.0
-	r.Core.DiffuseColor[1] = 1.0
-	r.Core.DiffuseColor[2] = 1.0
-	r.Core.DiffuseColor[3] = 1.0
-	r.Core.SpecularColor[0] = 1.0
-	r.Core.SpecularColor[1] = 1.0
-	r.Core.SpecularColor[2] = 1.0
-	r.Core.SpecularColor[3] = 1.0
-	r.Core.Shininess = 0.00
+	r.Material = fizzle.NewMaterial()
+	r.Material.Shininess = 0.00
 
 	// calculate the memory size of floats used to calculate total memory size of float arrays
 	const floatSize = 4

@@ -295,10 +295,11 @@ func createScene(renderWidth, renderHeight uint32) {
 	// create a 1 ft. cube to render
 	const cubeSize = 0.30 * 0.5
 	cube = fizzle.CreateCube(-cubeSize, -cubeSize, -cubeSize, cubeSize, cubeSize, cubeSize)
-	cube.Core.Shader = basicShader
-	cube.Core.DiffuseColor = mgl.Vec4{0.9, 0.05, 0.05, 1.0}
-	cube.Core.SpecularColor = mgl.Vec4{1.0, 1.0, 1.0, 1.0}
-	cube.Core.Shininess = 10.0
+	cube.Material = fizzle.NewMaterial()
+	cube.Material.Shader = basicShader
+	cube.Material.DiffuseColor = mgl.Vec4{0.9, 0.05, 0.05, 1.0}
+	cube.Material.SpecularColor = mgl.Vec4{1.0, 1.0, 1.0, 1.0}
+	cube.Material.Shininess = 10.0
 }
 
 func handleInput() {

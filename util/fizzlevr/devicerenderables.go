@@ -5,6 +5,7 @@ package fizzlevr
 
 import (
 	"fmt"
+
 	mgl "github.com/go-gl/mathgl/mgl32"
 
 	fizzle "github.com/tbogdala/fizzle"
@@ -90,7 +91,8 @@ func (dr *DeviceRenderables) GetRenderableForTrackedDevice(deviceIndex int) (*fi
 	r := fizzle.NewRenderable()
 	r.Core = fizzle.NewRenderableCore()
 	r.FaceCount = renderModel.TriangleCount
-	r.Core.Shader = dr.Shader
+	r.Material = fizzle.NewMaterial()
+	r.Material.Shader = dr.Shader
 
 	gfx := fizzle.GetGraphics()
 	gfx.BindVertexArray(r.Core.Vao)
@@ -112,9 +114,9 @@ func (dr *DeviceRenderables) GetRenderableForTrackedDevice(deviceIndex int) (*fi
 	gfx.BufferData(graphics.ELEMENT_ARRAY_BUFFER, uintSize*len(renderModel.Indexes), gfx.Ptr(&renderModel.Indexes[0]), graphics.STATIC_DRAW)
 
 	// upload the texture
-	r.Core.Tex[0] = gfx.GenTexture()
+	r.Material.DiffuseTex = gfx.GenTexture()
 	gfx.ActiveTexture(graphics.TEXTURE0)
-	gfx.BindTexture(graphics.TEXTURE_2D, r.Core.Tex[0])
+	gfx.BindTexture(graphics.TEXTURE_2D, r.Material.DiffuseTex)
 
 	gfx.TexImage2D(graphics.TEXTURE_2D, 0, graphics.RGBA, int32(renderModel.TextureWidth), int32(renderModel.TextureHeight),
 		0, graphics.RGBA, graphics.UNSIGNED_BYTE, gfx.Ptr(renderModel.TextureBytes), len(renderModel.TextureBytes))
@@ -197,7 +199,7 @@ func (dr *DeviceRenderables) RenderDevices(vrCompositor *vr.Compositor, perspect
 
 		if shaderTex0 >= 0 {
 			gfx.ActiveTexture(graphics.Texture(graphics.TEXTURE0))
-			gfx.BindTexture(graphics.TEXTURE_2D, r.Core.Tex[0])
+			gfx.BindTexture(graphics.TEXTURE_2D, r.Material.DiffuseTex)
 			gfx.Uniform1i(shaderTex0, 0)
 		}
 
