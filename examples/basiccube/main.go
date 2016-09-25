@@ -21,9 +21,8 @@ import (
 )
 
 const (
-	basicShaderPath = "./basic"
-	nearView        = 0.1
-	farView         = 30.0
+	nearView = 0.1
+	farView  = 30.0
 )
 
 var (
@@ -259,7 +258,7 @@ func onWindowResize(w *glfw.Window, width int, height int) {
 func createShaders() error {
 	// load the diffuse shader for the cube
 	var err error
-	basicShader, err = fizzle.LoadShaderProgramFromFiles(basicShaderPath, nil)
+	basicShader, err = forward.CreateBasicShader()
 	if err != nil {
 		return fmt.Errorf("Failed to compile and link the diffuse shader program!\n%v", err)
 	}

@@ -28,7 +28,6 @@ import (
 
 const (
 	voxelShaderPath = "./assets/voxel"
-	colorShaderPath = "./assets/color"
 	nearView        = 0.1
 	farView         = 500.0
 	worldChunkSize  = 12
@@ -227,7 +226,7 @@ func createShaders() error {
 		return fmt.Errorf("Failed to compile and link the voxel shader program!\n%v", err)
 	}
 
-	colorShader, err = fizzle.LoadShaderProgramFromFiles(colorShaderPath, nil)
+	colorShader, err = forward.CreateColorShader()
 	if err != nil {
 		return fmt.Errorf("Failed to compile and link the color shader program!\n%v", err)
 	}
@@ -307,6 +306,7 @@ func handleInput() {
 			rod := orientation.Mul(100.0)
 			endPosition := controllerPosition.Add(rod)
 			teleportLine = fizzle.CreateLineV(controllerPosition, endPosition)
+			teleportLine.Material = fizzle.NewMaterial()
 		} else if wasTeleporting && triggerVal > 0.0 {
 			tdp := vrCompositor.GetRenderPose(i)
 			forward := mgl.Vec4{0.0, 0.0, -1.0, 0.0}
