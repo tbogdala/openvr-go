@@ -6,6 +6,8 @@ package chunk
 import (
 	"fmt"
 
+	mgl "github.com/go-gl/mathgl/mgl32"
+
 	physics "github.com/tbogdala/cubez"
 	physmath "github.com/tbogdala/cubez/math"
 	"github.com/tbogdala/fizzle"
@@ -110,9 +112,9 @@ func NewChunk(chunkX, chunkY, chunkZ int) *Chunk {
 	c.Y = chunkY
 	c.Z = chunkZ
 	c.AABBCollider = glider.NewAABBox()
-	c.AABBCollider.Offset = glider.Vec3{float32(c.X) * ChunkSize, float32(c.Y) * ChunkSize, float32(c.Z) * ChunkSize}
-	c.AABBCollider.Min = glider.Vec3{0, 0, 0}
-	c.AABBCollider.Max = glider.Vec3{ChunkSizeF, ChunkSizeF, ChunkSizeF}
+	c.AABBCollider.Offset = mgl.Vec3{float32(c.X) * ChunkSize, float32(c.Y) * ChunkSize, float32(c.Z) * ChunkSize}
+	c.AABBCollider.Min = mgl.Vec3{0, 0, 0}
+	c.AABBCollider.Max = mgl.Vec3{ChunkSizeF, ChunkSizeF, ChunkSizeF}
 	return c
 }
 
@@ -558,8 +560,8 @@ func buildBoxCollider(cb *collisionBlock) *glider.AABBox {
 	halfLength := float32(length) / 2.0
 
 	box.SetOffset3f(float32(cb.X)+0.5, float32(cb.Y)+0.5, float32(cb.StartZ)+halfLength)
-	box.Min = glider.Vec3{-0.5, -0.5, -halfLength}
-	box.Max = glider.Vec3{0.5, 0.5, halfLength}
+	box.Min = mgl.Vec3{-0.5, -0.5, -halfLength}
+	box.Max = mgl.Vec3{0.5, 0.5, halfLength}
 	return box
 }
 

@@ -320,8 +320,8 @@ func handleInput() {
 
 			// figure out where we hit
 			var teleRay glider.CollisionRay
-			teleRay.Origin = glider.Vec3(controllerWorldPosition)
-			teleRay.SetDirection(glider.Vec3(orientation))
+			teleRay.Origin = mgl.Vec3(controllerWorldPosition)
+			teleRay.SetDirection(mgl.Vec3(orientation))
 
 			closestCollision := float32(9999.0)
 			for _, c := range chunkMan.Chunks {
