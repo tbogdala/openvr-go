@@ -5,7 +5,6 @@ package openvr
 
 // OpenVR Constants
 const (
-	TrackingStringSize                          = uint(32)
 	MaxDriverDebugResponseSize                  = uint(32768)
 	TrackedDeviceIndexHmd                       = uint(0)
 	MaxTrackedDeviceCount                       = uint(16)
@@ -15,18 +14,21 @@ const (
 	ControllerStateAxisCount                    = uint(5)
 	OverlayHandleInvalid                        = uint(0)
 	ScreenshotHandleInvalid                     = uint(0)
-	IVRSystemVersion                            = "IVRSystem_012"
+	IVRSystemVersion                            = "IVRSystem_015"
 	IVRExtendedDisplayVersion                   = "IVRExtendedDisplay_001"
 	IVRTrackedCameraVersion                     = "IVRTrackedCamera_003"
 	MaxApplicationKeyLength                     = uint(128)
-	IVRApplicationsVersion                      = "IVRApplications_005"
+	MimeTypeHomeApp                             = "vr/home"
+	MimeTypeGameTheater                         = "vr/game_theater"
+	IVRApplicationsVersion                      = "IVRApplications_006"
 	IVRChaperoneVersion                         = "IVRChaperone_003"
 	IVRChaperoneSetupVersion                    = "IVRChaperoneSetup_005"
-	IVRCompositorVersion                        = "IVRCompositor_015"
+	IVRCompositorVersion                        = "IVRCompositor_019"
 	VROverlayMaxKeyLength                       = uint(128)
 	VROverlayMaxNameLength                      = uint(128)
-	MaxOverlayCount                             = uint(32)
-	IVROverlayVersion                           = "IVROverlay_012"
+	MaxOverlayCount                             = uint(64)
+	MaxOverlayIntersectionMaskPrimitivesCount   = uint(32)
+	IVROverlayVersion                           = "IVROverlay_014"
 	ControllerComponentGDC2015                  = "gdc2015"
 	ControllerComponentBase                     = "base"
 	ControllerComponentTip                      = "tip"
@@ -36,7 +38,7 @@ const (
 	NotificationTextMaxSize                     = uint(256)
 	IVRNotificationsVersion                     = "IVRNotifications_002"
 	MaxSettingsKeyLength                        = uint(128)
-	IVRSettingsVersion                          = "IVRSettings_001"
+	IVRSettingsVersion                          = "IVRSettings_002"
 	SteamVRSection                              = "steamvr"
 	SteamVRRequireHmdString                     = "requireHmd"
 	SteamVRForcedDriverKeyString                = "forcedDriver"
@@ -50,16 +52,13 @@ const (
 	SteamVRLogLevelInt32                        = "loglevel"
 	SteamVRIPDFloat                             = "ipd"
 	SteamVRBackgroundString                     = "background"
+	SteamVRBackgroundUseDomeProjectionBool      = "backgroundUseDomeProjection"
 	SteamVRBackgroundCameraHeightFloat          = "backgroundCameraHeight"
 	SteamVRBackgroundDomeRadiusFloat            = "backgroundDomeRadius"
-	SteamVREnvironmentString                    = "environment"
 	SteamVRGridColorString                      = "gridColor"
 	SteamVRPlayAreaColorString                  = "playAreaColor"
 	SteamVRShowStageBool                        = "showStage"
 	SteamVRActivateMultipleDriversBool          = "activateMultipleDrivers"
-	SteamVRPowerOffOnExitBool                   = "powerOffOnExit"
-	SteamVRStandbyAppRunningTimeoutFloat        = "standbyAppRunningTimeout"
-	SteamVRStandbyNoAppTimeoutFloat             = "standbyNoAppTimeout"
 	SteamVRDirectModeBool                       = "directMode"
 	SteamVRDirectModeEdidVidInt32               = "directModeEdidVid"
 	SteamVRDirectModeEdidPidInt32               = "directModeEdidPid"
@@ -68,19 +67,27 @@ const (
 	SteamVRBaseStationPowerManagementBool       = "basestationPowerManagement"
 	SteamVRNeverKillProcessesBool               = "neverKillProcesses"
 	SteamVRRenderTargetMultiplierFloat          = "renderTargetMultiplier"
-	SteamVRAllowReprojectionBool                = "allowReprojection"
+	SteamVRAllowAsyncReprojectionBool           = "allowAsyncReprojection"
+	SteamVRAllowReprojectionBool                = "allowInterleavedReprojection"
 	SteamVRForceReprojectionBool                = "forceReprojection"
 	SteamVRForceFadeOnBadTrackingBool           = "forceFadeOnBadTracking"
 	SteamVRDefaultMirrorViewInt32               = "defaultMirrorView"
 	SteamVRShowMirrorViewBool                   = "showMirrorView"
+	SteamVRMirrorViewGeometryString             = "mirrorViewGeometry"
+	SteamVRStartMonitorFromAppLaunch            = "startMonitorFromAppLaunch"
+	SteamVRStartCompositorFromAppLaunchBool     = "startCompositorFromAppLaunch"
+	SteamVRStartDashboardFromAppLaunchBool      = "startDashboardFromAppLaunch"
+	SteamVRStartOverlayAppsFromDashboardBool    = "startOverlayAppsFromDashboard"
+	SteamVREnableHomeApp                        = "enableHomeApp"
+	SteamVRSetInitialDefaultHomeApp             = "setInitialDefaultHomeApp"
+	SteamVRCycleBackgroundImageTimeSecInt32     = "CycleBackgroundImageTimeSec"
+	SteamVRRetailDemoBool                       = "retailDemo"
+	SteamVRIpdOffsetFloat                       = "ipdOffset"
 	LighthouseSection                           = "driver_lighthouse"
 	LighthouseDisableIMUBool                    = "disableimu"
 	LighthouseUseDisambiguationString           = "usedisambiguation"
 	LighthouseDisambiguationDebugInt32          = "disambiguationdebug"
 	LighthousePrimaryBasestationInt32           = "primarybasestation"
-	LighthouseLighthouseNameString              = "lighthousename"
-	LighthouseMaxIncidenceAngleDegreesFloat     = "maxincidenceangledegrees"
-	LighthouseUseLighthouseDirectBool           = "uselighthousedirect"
 	LighthouseDBHistoryBool                     = "dbhistory"
 	NullSection                                 = "driver_null"
 	NullEnableNullDriverBool                    = "enable"
@@ -96,7 +103,9 @@ const (
 	NullDisplayFrequencyFloat                   = "displayFrequency"
 	UserInterfaceSection                        = "userinterface"
 	UserInterfaceStatusAlwaysOnTopBool          = "StatusAlwaysOnTop"
-	UserInterfaceEnableScreenshotsBool          = "EnableScreenshots"
+	UserInterfaceMinimizeToTrayBool             = "MinimizeToTray"
+	UserInterfaceScreenshotsBool                = "screenshots"
+	UserInterfaceScreenshotTypeInt              = "screenshotType"
 	NotificationsSection                        = "notifications"
 	NotificationsDoNotDisturbBool               = "DoNotDisturb"
 	KeyboardSection                             = "keyboard"
@@ -133,6 +142,7 @@ const (
 	CameraBoundsColorGammaGInt32                = "cameraBoundsColorGammaG"
 	CameraBoundsColorGammaBInt32                = "cameraBoundsColorGammaB"
 	CameraBoundsColorGammaAInt32                = "cameraBoundsColorGammaA"
+	CameraBoundsStrengthInt32                   = "cameraBoundsStrength"
 	AudioSection                                = "audio"
 	AudioOnPlaybackDeviceString                 = "onPlaybackDevice"
 	AudioOnRecordDeviceString                   = "onRecordDevice"
@@ -140,8 +150,18 @@ const (
 	AudioOffPlaybackDeviceString                = "offPlaybackDevice"
 	AudioOffRecordDeviceString                  = "offRecordDevice"
 	AudioVIVEHDMIGain                           = "viveHDMIGain"
+	PowerSection                                = "power"
+	PowerPowerOffOnExitBool                     = "powerOffOnExit"
+	PowerTurnOffScreensTimeoutFloat             = "turnOffScreensTimeout"
+	PowerTurnOffControllersTimeoutFloat         = "turnOffControllersTimeout"
+	PowerReturnToWatchdogTimeoutFloat           = "returnToWatchdogTimeout"
+	PowerAutoLaunchSteamVROnButtonPress         = "autoLaunchSteamVROnButtonPress"
+	DashboardSection                            = "dashboard"
+	DashboardEnableDashboardBool                = "enableDashboard"
+	DashboardArcadeModeBool                     = "arcadeMode"
 	ModelskinSection                            = "modelskins"
 	IVRScreenshotsVersion                       = "IVRScreenshots_001"
+	IVRResourcesVersion                         = "IVRResources_001"
 )
 
 // OpenVR Enums
@@ -152,10 +172,11 @@ const (
 	EyeRight = 1
 )
 
-// EGraphicsAPIConvention
+// ETextureType
 const (
-	APIDirectX = 0
-	APIOpenGL  = 1
+	TextureTypeDirectX = 0
+	TextureTypeOpenGL  = 1
+	TextureTypeVulkan  = 2
 )
 
 // EColorSpace
@@ -179,8 +200,8 @@ const (
 	TrackedDeviceClassInvalid           = 0
 	TrackedDeviceClassHMD               = 1
 	TrackedDeviceClassController        = 2
+	TrackedDeviceClassGenericTracker    = 3
 	TrackedDeviceClassTrackingReference = 4
-	TrackedDeviceClassOther             = 1000
 )
 
 // ETrackedControllerRole
@@ -199,6 +220,7 @@ const (
 
 // ETrackedDeviceProperty
 const (
+	PropInvalid                                     = 0
 	PropTrackingSystemNameString                    = 1000
 	PropModelNumberString                           = 1001
 	PropSerialNumberString                          = 1002
@@ -231,7 +253,8 @@ const (
 	PropDeviceClassInt32                            = 1029
 	PropHasCameraBool                               = 1030
 	PropDriverVersionString                         = 1031
-	PropFirmwareForceUpdateRequired_Bool            = 1032
+	PropFirmwareForceUpdateRequiredBool             = 1032
+	PropViveSystemButtonFixRequiredBool             = 1033
 	PropReportsTimeSinceVSyncBool                   = 2000
 	PropSecondsFromVsyncToPhotonsFloat              = 2001
 	PropDisplayFrequencyFloat                       = 2002
@@ -269,6 +292,7 @@ const (
 	PropScreenshotHorizontalFieldOfViewDegreesFloat = 2034
 	PropScreenshotVerticalFieldOfViewDegreesFloat   = 2035
 	PropDisplaySuppressedBool                       = 2036
+	PropDisplayAllowNightModeBool                   = 2037
 	PropAttachedDeviceIdString                      = 3000
 	PropSupportedButtonsUint64                      = 3001
 	PropAxis0TypeInt32                              = 3002
@@ -276,6 +300,7 @@ const (
 	PropAxis2TypeInt32                              = 3004
 	PropAxis3TypeInt32                              = 3005
 	PropAxis4TypeInt32                              = 3006
+	PropControllerRoleHintInt32                     = 3007
 	PropFieldOfViewLeftDegreesFloat                 = 4000
 	PropFieldOfViewRightDegreesFloat                = 4001
 	PropFieldOfViewTopDegreesFloat                  = 4002
@@ -283,6 +308,15 @@ const (
 	PropTrackingRangeMinimumMetersFloat             = 4004
 	PropTrackingRangeMaximumMetersFloat             = 4005
 	PropModeLabelString                             = 4006
+	PropIconPathNameString                          = 5000
+	PropNamedIconPathDeviceOffString                = 5001
+	PropNamedIconPathDeviceSearchingString          = 5002
+	PropNamedIconPathDeviceSearchingAlertString     = 5003
+	PropNamedIconPathDeviceReadyString              = 5004
+	PropNamedIconPathDeviceReadyAlertString         = 5005
+	PropNamedIconPathDeviceNotReadyString           = 5006
+	PropNamedIconPathDeviceStandbyString            = 5007
+	PropNamedIconPathDeviceAlertLowString           = 5008
 	PropVendorSpecificReservedStart                 = 10000
 	PropVendorSpecificReservedEnd                   = 10999
 )
@@ -299,6 +333,7 @@ const (
 	TrackedPropValueNotProvidedByDevice   = 7
 	TrackedPropStringExceedsMaximumLength = 8
 	TrackedPropNotYetAvailable            = 9
+	TrackedPropPermissionDenied           = 10
 )
 
 // EVRSubmitFlags
@@ -306,6 +341,7 @@ const (
 	SubmitDefault                      = 0
 	SubmitLensDistortionAlreadyApplied = 1
 	SubmitGlRenderBuffer               = 2
+	SubmitReserved                     = 4
 )
 
 // EVRState
@@ -318,6 +354,7 @@ const (
 	VRStateReadyAlert     = 4
 	VRStateNotReady       = 5
 	VRStateStandby        = 6
+	VRStateReadyAlertLow  = 7
 )
 
 // EVREventType
@@ -332,6 +369,8 @@ const (
 	VREventEnterStandbyMode                          = 106
 	VREventLeaveStandbyMode                          = 107
 	VREventTrackedDeviceRoleChanged                  = 108
+	VREventWatchdogWakeUpRequested                   = 109
+	VREventLensDistortionChanged                     = 110
 	VREventButtonPress                               = 200
 	VREventButtonUnpress                             = 201
 	VREventButtonTouch                               = 202
@@ -343,6 +382,7 @@ const (
 	VREventFocusLeave                                = 304
 	VREventScroll                                    = 305
 	VREventTouchPadMove                              = 306
+	VREventOverlayFocusChanged                       = 307
 	VREventInputFocusCaptured                        = 400
 	VREventInputFocusReleased                        = 401
 	VREventSceneFocusLost                            = 402
@@ -371,17 +411,19 @@ const (
 	VREventDashboardGuideButtonUp                    = 515
 	VREventScreenshotTriggered                       = 516
 	VREventImageFailed                               = 517
+	VREventDashboardOverlayCreated                   = 518
 	VREventRequestScreenshot                         = 520
 	VREventScreenshotTaken                           = 521
 	VREventScreenshotFailed                          = 522
 	VREventSubmitScreenshotToDashboard               = 523
+	VREventScreenshotProgressToDashboard             = 524
 	VREventNotificationShown                         = 600
 	VREventNotificationHidden                        = 601
 	VREventNotificationBeginInteraction              = 602
 	VREventNotificationDestroyed                     = 603
 	VREventQuit                                      = 700
 	VREventProcessQuit                               = 701
-	VREventQuitAborted_UserPrompt                    = 702
+	VREventQuitAbortedUserPrompt                     = 702
 	VREventQuitAcknowledged                          = 703
 	VREventDriverRequestedQuit                       = 704
 	VREventChaperoneDataHasChanged                   = 800
@@ -395,6 +437,7 @@ const (
 	VREventReprojectionSettingHasChanged             = 852
 	VREventModelSkinSettingsHaveChanged              = 853
 	VREventEnvironmentSettingsHaveChanged            = 854
+	VREventPowerSettingsHaveChanged                  = 855
 	VREventStatusUpdate                              = 900
 	VREventMCImageUpdated                            = 1000
 	VREventFirmwareUpdateStarted                     = 1100
@@ -406,6 +449,7 @@ const (
 	VREventApplicationTransitionAborted              = 1301
 	VREventApplicationTransitionNewAppStarted        = 1302
 	VREventApplicationListUpdated                    = 1303
+	VREventApplicationMimeTypeLoad                   = 1304
 	VREventCompositorMirrorWindowShown               = 1400
 	VREventCompositorMirrorWindowHidden              = 1401
 	VREventCompositorChaperoneBoundsShown            = 1410
@@ -414,41 +458,44 @@ const (
 	VREventTrackedCameraStopVideoStream              = 1501
 	VREventTrackedCameraPauseVideoStream             = 1502
 	VREventTrackedCameraResumeVideoStream            = 1503
+	VREventTrackedCameraEditingSurface               = 1550
 	VREventPerformanceTestEnableCapture              = 1600
 	VREventPerformanceTestDisableCapture             = 1601
 	VREventPerformanceTestFidelityLevel              = 1602
+	VREventMessageOverlayClosed                      = 1650
 	VREventVendorSpecificReservedStart               = 10000
 	VREventVendorSpecificReservedEnd                 = 19999
 )
 
 // EDeviceActivityLevel
 const (
-	EDeviceActivityLevelUnknown                = -1
-	EDeviceActivityLevelIdle                   = 0
-	EDeviceActivityLevelUserInteraction        = 1
-	EDeviceActivityLevelUserInteractionTimeout = 2
-	EDeviceActivityLevelStandby                = 3
+	DeviceActivityLevelUnknown                = -1
+	DeviceActivityLevelIdle                   = 0
+	DeviceActivityLevelUserInteraction        = 1
+	DeviceActivityLevelUserInteractionTimeout = 2
+	DeviceActivityLevelStandby                = 3
 )
 
 // EVRButtonId
 const (
-	EButtonSystem           = 0
-	EButtonApplicationMenu  = 1
-	EButtonGrip             = 2
-	EButtonDPad_Left        = 3
-	EButtonDPad_Up          = 4
-	EButtonDPad_Right       = 5
-	EButtonDPad_Down        = 6
-	EButtonA                = 7
-	EButtonAxis0            = 32
-	EButtonAxis1            = 33
-	EButtonAxis2            = 34
-	EButtonAxis3            = 35
-	EButtonAxis4            = 36
-	EButtonSteamVR_Touchpad = 32
-	EButtonSteamVR_Trigger  = 33
-	EButtonDashboard_Back   = 2
-	EButtonMax              = 64
+	ButtonSystem          = 0
+	ButtonApplicationMenu = 1
+	ButtonGrip            = 2
+	ButtonDPadLeft        = 3
+	ButtonDPadUp          = 4
+	ButtonDPadRight       = 5
+	ButtonDPadDown        = 6
+	ButtonA               = 7
+	ButtonProximitySensor = 31
+	ButtonAxis0           = 32
+	ButtonAxis1           = 33
+	ButtonAxis2           = 34
+	ButtonAxis3           = 35
+	ButtonAxis4           = 36
+	ButtonSteamVRTouchpad = 32
+	ButtonSteamVRTrigger  = 33
+	ButtonDashboardBack   = 2
+	ButtonMax             = 64
 )
 
 // EVRMouseButton
@@ -456,6 +503,13 @@ const (
 	VRMouseButtonLeft   = 1
 	VRMouseButtonRight  = 2
 	VRMouseButtonMiddle = 4
+)
+
+// EHiddenAreaMeshType
+const (
+	HiddenAreaMeshStandard = 0
+	HiddenAreaMeshInverse  = 1
+	HiddenAreaMeshLineLoop = 2
 )
 
 // EVRControllerAxisType
@@ -503,16 +557,20 @@ const (
 	VROverlayErrorUnableToLoadFile         = 25
 	VROVerlayErrorKeyboardAlreadyInUse     = 26
 	VROverlayErrorNoNeighbor               = 27
+	VROverlayErrorTooManyMaskPrimitives    = 29
+	VROverlayErrorBadMaskPrimitive         = 30
 )
 
 // EVRApplicationType
 const (
-	VRApplicationOther      = 0
-	VRApplicationScene      = 1
-	VRApplicationOverlay    = 2
-	VRApplicationBackground = 3
-	VRApplicationUtility    = 4
-	VRApplicationVRMonitor  = 5
+	VRApplicationOther         = 0
+	VRApplicationScene         = 1
+	VRApplicationOverlay       = 2
+	VRApplicationBackground    = 3
+	VRApplicationUtility       = 4
+	VRApplicationVRMonitor     = 5
+	VRApplicationSteamWatchdog = 6
+	VRApplicationMax           = 7
 )
 
 // EVRFirmwareError
@@ -560,6 +618,16 @@ const (
 	VRInitErrorInitNotSupportedWithCompositor                   = 122
 	VRInitErrorInitNotAvailableToUtilityApps                    = 123
 	VRInitErrorInitInternal                                     = 124
+	VRInitErrorInitHmdDriverIdIsNone                            = 125
+	VRInitErrorInitHmdNotFoundPresenceFailed                    = 126
+	VRInitErrorInitVRMonitorNotFound                            = 127
+	VRInitErrorInitVRMonitorStartupFailed                       = 128
+	VRInitErrorInitLowPowerWatchdogNotSupported                 = 129
+	VRInitErrorInitInvalidApplicationType                       = 130
+	VRInitErrorInitNotAvailableToWatchdogApps                   = 131
+	VRInitErrorInitWatchdogDisabledInSettings                   = 132
+	VRInitErrorInitVRDashboardNotFound                          = 133
+	VRInitErrorInitVRDashboardStartupFailed                     = 134
 	VRInitErrorDriverFailed                                     = 200
 	VRInitErrorDriverUnknown                                    = 201
 	VRInitErrorDriverHmdUnknown                                 = 202
@@ -569,12 +637,18 @@ const (
 	VRInitErrorDriverNotCalibrated                              = 206
 	VRInitErrorDriverCalibrationInvalid                         = 207
 	VRInitErrorDriverHmdDisplayNotFound                         = 208
+	VRInitErrorDriverTrackedDeviceInterfaceUnknown              = 209
+	VRInitErrorDriverHmdDriverIdOutOfBounds                     = 211
+	VRInitErrorDriverHmdDisplayMirrored                         = 212
 	VRInitErrorIPCServerInitFailed                              = 300
 	VRInitErrorIPCConnectFailed                                 = 301
 	VRInitErrorIPCSharedStateInitFailed                         = 302
 	VRInitErrorIPCCompositorInitFailed                          = 303
 	VRInitErrorIPCMutexInitFailed                               = 304
 	VRInitErrorIPCFailed                                        = 305
+	VRInitErrorIPCCompositorConnectFailed                       = 306
+	VRInitErrorIPCCompositorInvalidConnectResponse              = 307
+	VRInitErrorIPCConnectFailedAfterMultipleAttempts            = 308
 	VRInitErrorCompositorFailed                                 = 400
 	VRInitErrorCompositorD3D11HardwareRequired                  = 401
 	VRInitErrorCompositorFirmwareRequiresUpdate                 = 402
@@ -639,7 +713,7 @@ const (
 	VRTrackedCameraFrameTypeDistorted          = 0
 	VRTrackedCameraFrameTypeUndistorted        = 1
 	VRTrackedCameraFrameTypeMaximumUndistorted = 2
-	MaxCameraFrameTypes                        = 3
+	VRTrackedCameraMaxCameraFrameTypes         = 3
 )
 
 // EVRApplicationError
@@ -700,7 +774,7 @@ const (
 	ChaperoneCalibrationStateWarningBaseStationRemoved      = 102
 	ChaperoneCalibrationStateWarningSeatedBoundsInvalid     = 103
 	ChaperoneCalibrationStateError                          = 200
-	ChaperoneCalibrationStateErrorBaseStationUninitalized   = 201
+	ChaperoneCalibrationStateErrorBaseStationUninitialized  = 201
 	ChaperoneCalibrationStateErrorBaseStationConflict       = 202
 	ChaperoneCalibrationStateErrorPlayAreaInvalid           = 203
 	ChaperoneCalibrationStateErrorCollisionBoundsInvalid    = 204
@@ -708,13 +782,13 @@ const (
 
 // EChaperoneConfigFile
 const (
-	EChaperoneConfigFileLive = 1
-	EChaperoneConfigFileTemp = 2
+	ChaperoneConfigFileLive = 1
+	ChaperoneConfigFileTemp = 2
 )
 
 // EChaperoneImportFlags
 const (
-	EChaperoneImportBoundsOnly = 1
+	ChaperoneImportBoundsOnly = 1
 )
 
 // EVRCompositorError
@@ -729,6 +803,7 @@ const (
 	VRCompositorErrorTextureUsesUnsupportedFormat = 105
 	VRCompositorErrorSharedTexturesNotSupported   = 106
 	VRCompositorErrorIndexOutOfRange              = 107
+	VRCompositorErrorAlreadySubmitted             = 108
 )
 
 // VROverlayInputMethod
@@ -757,23 +832,36 @@ const (
 	VROverlayFlagsSendVRTouchpadEvents               = 7
 	VROverlayFlagsShowTouchPadScrollWheel            = 8
 	VROverlayFlagsTransferOwnershipToInternalProcess = 9
-	VROverlayFlagsSideBySide_Parallel                = 10
-	VROverlayFlagsSideBySide_Crossed                 = 11
+	VROverlayFlagsSideBySideParallel                 = 10
+	VROverlayFlagsSideBySideCrossed                  = 11
 	VROverlayFlagsPanorama                           = 12
 	VROverlayFlagsStereoPanorama                     = 13
+	VROverlayFlagsSortWithNonSceneOverlays           = 14
+	VROverlayFlagsVisibleInDashboard                 = 15
+)
+
+// VRMessageOverlayResponse
+const (
+	VRMessageOverlayResponseButtonPress0                     = 0
+	VRMessageOverlayResponseButtonPress1                     = 1
+	VRMessageOverlayResponseButtonPress2                     = 2
+	VRMessageOverlayResponseButtonPress3                     = 3
+	VRMessageOverlayResponseCouldntFindSystemOverlay         = 4
+	VRMessageOverlayResponseCouldntFindOrCreateClientOverlay = 5
+	VRMessageOverlayResponseApplicationQuit                  = 6
 )
 
 // EGamepadTextInputMode
 const (
-	EGamepadTextInputModeNormal   = 0
-	EGamepadTextInputModePassword = 1
-	EGamepadTextInputModeSubmit   = 2
+	GamepadTextInputModeNormal   = 0
+	GamepadTextInputModePassword = 1
+	GamepadTextInputModeSubmit   = 2
 )
 
 // EGamepadTextInputLineMode
 const (
-	EGamepadTextInputLineModeSingleLine    = 0
-	EGamepadTextInputLineModeMultipleLines = 1
+	GamepadTextInputLineModeSingleLine    = 0
+	GamepadTextInputLineModeMultipleLines = 1
 )
 
 // EOverlayDirection
@@ -783,6 +871,12 @@ const (
 	OverlayDirectionLeft  = 2
 	OverlayDirectionRight = 3
 	OverlayDirectionCount = 4
+)
+
+// EVROverlayIntersectionMaskPrimitiveType
+const (
+	VROverlayIntersectionMaskPrimitiveTypeRectangle = 0
+	VROverlayIntersectionMaskPrimitiveTypeCircle    = 1
 )
 
 // EVRRenderModelError
@@ -813,26 +907,28 @@ const (
 
 // EVRNotificationType
 const (
-	EVRNotificationTypeTransient                    = 0
-	EVRNotificationTypePersistent                   = 1
-	EVRNotificationTypeTransientSystemWithUserValue = 2
+	VRNotificationTypeTransient                    = 0
+	VRNotificationTypePersistent                   = 1
+	VRNotificationTypeTransientSystemWithUserValue = 2
 )
 
 // EVRNotificationStyle
 const (
-	EVRNotificationStyleNone            = 0
-	EVRNotificationStyleApplication     = 100
-	EVRNotificationStyleContactDisabled = 200
-	EVRNotificationStyleContactEnabled  = 201
-	EVRNotificationStyleContactActive   = 202
+	VRNotificationStyleNone            = 0
+	VRNotificationStyleApplication     = 100
+	VRNotificationStyleContactDisabled = 200
+	VRNotificationStyleContactEnabled  = 201
+	VRNotificationStyleContactActive   = 202
 )
 
 // EVRSettingsError
 const (
-	VRSettingsErrorNone        = 0
-	VRSettingsErrorIPCFailed   = 1
-	VRSettingsErrorWriteFailed = 2
-	VRSettingsErrorReadFailed  = 3
+	VRSettingsErrorNone                     = 0
+	VRSettingsErrorIPCFailed                = 1
+	VRSettingsErrorWriteFailed              = 2
+	VRSettingsErrorReadFailed               = 3
+	VRSettingsErrorJsonParseFailed          = 4
+	VRSettingsErrorUnsetSettingHasNoDefault = 5
 )
 
 // EVRScreenshotError

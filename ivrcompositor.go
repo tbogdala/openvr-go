@@ -33,7 +33,7 @@ EVRCompositorError compositor_Submit(struct VR_IVRCompositor_FnTable* iComposito
 EVRCompositorError compositor_SubmitSimple(struct VR_IVRCompositor_FnTable* iCompositor, EVREye eEye, intptr_t texture) {
     struct Texture_t tex;
     tex.handle = (void*) texture;
-    tex.eType = EGraphicsAPIConvention_API_OpenGL;
+    tex.eType = ETextureType_TextureType_OpenGL;
     tex.eColorSpace = EColorSpace_ColorSpace_Gamma;
     return iCompositor->Submit(eEye, &tex, 0, EVRSubmitFlags_Submit_Default);
 }
@@ -140,10 +140,13 @@ struct VR_IVRCompositor_FnTable
 	void (OPENVR_FNTABLE_CALLTYPE *ClearLastSubmittedFrame)();
 	void (OPENVR_FNTABLE_CALLTYPE *PostPresentHandoff)();
 	bool (OPENVR_FNTABLE_CALLTYPE *GetFrameTiming)(struct Compositor_FrameTiming * pTiming, uint32_t unFramesAgo);
+	uint32_t (OPENVR_FNTABLE_CALLTYPE *GetFrameTimings)(struct Compositor_FrameTiming * pTiming, uint32_t nFrames);
 	float (OPENVR_FNTABLE_CALLTYPE *GetFrameTimeRemaining)();
 	void (OPENVR_FNTABLE_CALLTYPE *GetCumulativeStats)(struct Compositor_CumulativeStats * pStats, uint32_t nStatsSizeInBytes);
 	void (OPENVR_FNTABLE_CALLTYPE *FadeToColor)(float fSeconds, float fRed, float fGreen, float fBlue, float fAlpha, bool bBackground);
+	struct HmdColor_t (OPENVR_FNTABLE_CALLTYPE *GetCurrentFadeColor)(bool bBackground);
 	void (OPENVR_FNTABLE_CALLTYPE *FadeGrid)(float fSeconds, bool bFadeIn);
+	float (OPENVR_FNTABLE_CALLTYPE *GetCurrentGridAlpha)();
 	EVRCompositorError (OPENVR_FNTABLE_CALLTYPE *SetSkyboxOverride)(struct Texture_t * pTextures, uint32_t unTextureCount);
 	void (OPENVR_FNTABLE_CALLTYPE *ClearSkyboxOverride)();
 	void (OPENVR_FNTABLE_CALLTYPE *CompositorBringToFront)();

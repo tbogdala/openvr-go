@@ -21,16 +21,16 @@ void system_GetRecommendedRenderTargetSize(struct VR_IVRSystem_FnTable* iSystem,
     iSystem->GetRecommendedRenderTargetSize(width, height);
 }
 
-struct HmdMatrix44_t system_GetProjectionMatrix(struct VR_IVRSystem_FnTable* iSystem, EVREye eEye, float fNearZ, float fFarZ, EGraphicsAPIConvention eProjType) {
-    return iSystem->GetProjectionMatrix(eEye, fNearZ, fFarZ, eProjType);
+struct HmdMatrix44_t system_GetProjectionMatrix(struct VR_IVRSystem_FnTable* iSystem, EVREye eEye, float fNearZ, float fFarZ) {
+    return iSystem->GetProjectionMatrix(eEye, fNearZ, fFarZ);
 }
 
 struct HmdMatrix34_t system_GetEyeToHeadTransform(struct VR_IVRSystem_FnTable* iSystem, EVREye eEye) {
     return iSystem->GetEyeToHeadTransform(eEye);
 }
 
-struct DistortionCoordinates_t system_ComputeDistortion(struct VR_IVRSystem_FnTable* iSystem, EVREye eEye, float fU, float fV) {
-    return iSystem->ComputeDistortion(eEye, fU, fV);
+bool system_ComputeDistortion(struct VR_IVRSystem_FnTable* iSystem, EVREye eEye, float fU, float fV, struct DistortionCoordinates_t* dest) {
+    return iSystem->ComputeDistortion(eEye, fU, fV, dest) != 0;
 }
 
 bool system_IsTrackedDeviceConnected(struct VR_IVRSystem_FnTable* iSystem, TrackedDeviceIndex_t unDeviceIndex) {
@@ -54,7 +54,7 @@ bool system_PollNextEvent(struct VR_IVRSystem_FnTable* iSystem, struct VREvent_t
 }
 
 bool system_GetControllerState(struct VR_IVRSystem_FnTable* iSystem, TrackedDeviceIndex_t unControllerDeviceIndex, VRControllerState_t * pControllerState) {
-    return iSystem->GetControllerState(unControllerDeviceIndex, pControllerState);
+    return iSystem->GetControllerState(unControllerDeviceIndex, pControllerState, sizeof(VRControllerState_t));
 }
 
 char* system_GetControllerAxisTypeNameFromEnum(struct VR_IVRSystem_FnTable* iSystem, EVRControllerAxisType eAxisType) {
@@ -68,8 +68,9 @@ uint32_t system_GetInt32TrackedDeviceProperty(struct VR_IVRSystem_FnTable* iSyst
 */
 import "C"
 import (
-	mgl "github.com/go-gl/mathgl/mgl32"
 	"unsafe"
+
+	mgl "github.com/go-gl/mathgl/mgl32"
 )
 
 // DistortionCoordinates is used to return the post-distortion UVs for each color channel.
@@ -95,8 +96,8 @@ func (sys *System) GetRecommendedRenderTargetSize() (uint32, uint32) {
 }
 
 // GetProjectionMatrix returns the projection matrix for the specified eye
-func (sys *System) GetProjectionMatrix(eye int, near, far float32, projectionType int, dest *mgl.Mat4) {
-	m44 := C.system_GetProjectionMatrix(sys.ptr, C.EVREye(eye), C.float(near), C.float(far), C.EGraphicsAPIConvention(projectionType))
+func (sys *System) GetProjectionMatrix(eye int, near, far float32, dest *mgl.Mat4) {
+	m44 := C.system_GetProjectionMatrix(sys.ptr, C.EVREye(eye), C.float(near), C.float(far))
 
 	dest[0] = float32(m44.m[0][0])
 	dest[4] = float32(m44.m[0][1])
@@ -141,16 +142,22 @@ func (sys *System) GetEyeToHeadTransform(eye int, dest *mgl.Mat3x4) {
 	dest[11] = float32(m34.m[2][3])
 }
 
-// ComputeDistortion returns the result of the distortion function for the specified eye and input UVs. UVs go from 0,0 in
+// ComputeDistortion gets the result of the distortion function for the specified eye and input UVs. UVs go from 0,0 in
 // the upper left of that eye's viewport and 1,1 in the lower right of that eye's viewport.
-func (sys *System) ComputeDistortion(eye int, u, v float32, dest *DistortionCoordinates) {
-	dc := C.system_ComputeDistortion(sys.ptr, C.EVREye(eye), C.float(u), C.float(v))
-	dest.Red[0] = float32(dc.rfRed[0])
-	dest.Red[1] = float32(dc.rfRed[1])
-	dest.Green[0] = float32(dc.rfGreen[0])
-	dest.Green[1] = float32(dc.rfGreen[1])
-	dest.Blue[0] = float32(dc.rfBlue[0])
-	dest.Blue[1] = float32(dc.rfBlue[1])
+// Returns true for success. Otherwise, returns false, and distortion coordinates are not suitable.
+func (sys *System) ComputeDistortion(eye int, u, v float32, dest *DistortionCoordinates) bool {
+	var cDest C.struct_DistortionCoordinates_t
+	if C.system_ComputeDistortion(sys.ptr, C.EVREye(eye), C.float(u), C.float(v), &cDest) == 0 {
+		return false
+	}
+
+	dest.Red[0] = float32(cDest.rfRed[0])
+	dest.Red[1] = float32(cDest.rfRed[1])
+	dest.Green[0] = float32(cDest.rfGreen[0])
+	dest.Green[1] = float32(cDest.rfGreen[1])
+	dest.Blue[0] = float32(cDest.rfBlue[0])
+	dest.Blue[1] = float32(cDest.rfBlue[1])
+	return true
 }
 
 // IsTrackedDeviceConnected returns true if there is a device connected in this slot.
@@ -278,10 +285,10 @@ func (sys *System) GetEyeTransforms(near, far float32) *EyeTransforms {
 	var m mgl.Mat4
 	var m34 mgl.Mat3x4
 
-	sys.GetProjectionMatrix(EyeLeft, near, far, APIOpenGL, &m)
+	sys.GetProjectionMatrix(EyeLeft, near, far, &m)
 	transforms.ProjectionLeft = mgl.Mat4(m)
 
-	sys.GetProjectionMatrix(EyeRight, near, far, APIOpenGL, &m)
+	sys.GetProjectionMatrix(EyeRight, near, far, &m)
 	transforms.ProjectionRight = mgl.Mat4(m)
 
 	sys.GetEyeToHeadTransform(EyeLeft, &m34)
@@ -334,8 +341,8 @@ struct HmdMatrix34_t (OPENVR_FNTABLE_CALLTYPE *GetMatrix34TrackedDeviceProperty)
 char * (OPENVR_FNTABLE_CALLTYPE *GetPropErrorNameFromEnum)(ETrackedPropertyError error);
 bool (OPENVR_FNTABLE_CALLTYPE *PollNextEventWithPose)(ETrackingUniverseOrigin eOrigin, struct VREvent_t * pEvent, uint32_t uncbVREvent, TrackedDevicePose_t * pTrackedDevicePose);
 char * (OPENVR_FNTABLE_CALLTYPE *GetEventTypeNameFromEnum)(EVREventType eType);
-struct HiddenAreaMesh_t (OPENVR_FNTABLE_CALLTYPE *GetHiddenAreaMesh)(EVREye eEye);
-bool (OPENVR_FNTABLE_CALLTYPE *GetControllerStateWithPose)(ETrackingUniverseOrigin eOrigin, TrackedDeviceIndex_t unControllerDeviceIndex, VRControllerState_t * pControllerState, struct TrackedDevicePose_t * pTrackedDevicePose);
+struct HiddenAreaMesh_t (OPENVR_FNTABLE_CALLTYPE *GetHiddenAreaMesh)(EVREye eEye, EHiddenAreaMeshType type);
+bool (OPENVR_FNTABLE_CALLTYPE *GetControllerStateWithPose)(ETrackingUniverseOrigin eOrigin, TrackedDeviceIndex_t unControllerDeviceIndex, VRControllerState_t * pControllerState, uint32_t unControllerStateSize, struct TrackedDevicePose_t * pTrackedDevicePose);
 void (OPENVR_FNTABLE_CALLTYPE *TriggerHapticPulse)(TrackedDeviceIndex_t unControllerDeviceIndex, uint32_t unAxisId, unsigned short usDurationMicroSec);
 char * (OPENVR_FNTABLE_CALLTYPE *GetButtonIdNameFromEnum)(EVRButtonId eButtonId);
 bool (OPENVR_FNTABLE_CALLTYPE *CaptureInputFocus)();
