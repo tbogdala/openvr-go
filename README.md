@@ -1,4 +1,4 @@
-Openvr-go v0.2.0
+Openvr-go v0.3.0
 ================
 
 Openvr-go is an [Go][golang] programming language wrapper for the [OpenVR SDK][openvr-git]

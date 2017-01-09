@@ -1,5 +1,18 @@
-Changes since v0.2.0
-====================
+Version v0.3.0
+==============
+
+* APIBREAK: Changes were made to support OpenVR 1.0.5 upstream. Updated binaries.
+  Removed linux32 from lib & bin. Reviewed enumerations and brought some sets into
+  conformity of the naming convention.
+
+* MISC: Switched to using github.com/tbogdala/fizzle's built in shaders for samples.
+
+* MISC: Switched to Mathgl for vectors instead of github.com/tbogdala/glider's.
+
+* MISC: Switched to using fizzle's Material object in examples.
+
+Version v0.2.0
+==============
 
 * APIBREAK: Library now uses github.com/go-gl/mathgl/mgl32 for Vector and
   Matrix types where there used to be local definitions.
