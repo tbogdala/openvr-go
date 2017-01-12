@@ -38,11 +38,23 @@ EVRCompositorError compositor_SubmitSimple(struct VR_IVRCompositor_FnTable* iCom
     return iCompositor->Submit(eEye, &tex, 0, EVRSubmitFlags_Submit_Default);
 }
 
+float compositor_GetFrameTimeRemaining(struct VR_IVRCompositor_FnTable* iCompositor) {
+	return iCompositor->GetFrameTimeRemaining();
+}
+
+bool compositor_GetFrameTiming(struct VR_IVRCompositor_FnTable* iCompositor, struct Compositor_FrameTiming * pTiming, uint32_t unFramesAgo) {
+	pTiming->m_nSize = sizeof(struct Compositor_FrameTiming);
+	return iCompositor->GetFrameTiming(pTiming, unFramesAgo);
+}
+
 
 */
 import "C"
 
 import (
+	"bytes"
+	"fmt"
+
 	mgl "github.com/go-gl/mathgl/mgl32"
 )
 
@@ -76,6 +88,7 @@ func (comp *Compositor) WaitGetPoses(getPredictions bool) {
 	}
 }
 
+// Submit updates scene texture to display.
 func (comp *Compositor) Submit(eye int, texture uint32) {
 	C.compositor_SubmitSimple(comp.ptr, C.EVREye(eye), C.intptr_t(texture))
 }
@@ -88,10 +101,21 @@ func (comp *Compositor) IsPoseValid(i uint) bool {
 	return false
 }
 
+// GetFrameTimeRemaining returns the time in seconds left in the current (as identified by
+// FrameTiming's frameIndex) frame.  Due to "running start", this value may roll over
+// to the next frame before ever reaching 0.0.
+func (comp *Compositor) GetFrameTimeRemaining() float32 {
+	return float32(C.compositor_GetFrameTimeRemaining(comp.ptr))
+}
+
 // GetRenderPose gets the render pose for a device at the given index.
 func (comp *Compositor) GetRenderPose(i uint) (tdp TrackedDevicePose) {
 	cTDP := comp.renderPoseArray[i]
+	fillTrackedDevicePose(&tdp, &cTDP)
+	return tdp
+}
 
+func fillTrackedDevicePose(tdp *TrackedDevicePose, cTDP *C.struct_TrackedDevicePose_t) {
 	tdp.DeviceToAbsoluteTracking[0] = float32(cTDP.mDeviceToAbsoluteTracking.m[0][0])
 	tdp.DeviceToAbsoluteTracking[3] = float32(cTDP.mDeviceToAbsoluteTracking.m[0][1])
 	tdp.DeviceToAbsoluteTracking[6] = float32(cTDP.mDeviceToAbsoluteTracking.m[0][2])
@@ -124,8 +148,106 @@ func (comp *Compositor) GetRenderPose(i uint) (tdp TrackedDevicePose) {
 	if cTDP.bDeviceIsConnected != 0 {
 		tdp.DeviceIsConnected = true
 	}
+}
 
-	return tdp
+// FrameTiming provides a single frame's timing information to the app.
+type FrameTiming struct {
+	FrameIndex              uint32
+	NumFramePresents        uint32
+	NumMisPresented         uint32
+	NumDroppedFrames        uint32
+	ReprojectionFlags       uint32
+	SystemTimeInSeconds     float64
+	PreSubmitGpuMs          float32
+	PostSubmitGpuMs         float32
+	TotalRenderGpuMs        float32
+	CompositorRenderGpuMs   float32
+	CompositorRenderCpuMs   float32
+	CompositorIdleCpuMs     float32
+	ClientFrameIntervalMs   float32
+	PresentCallCpuMs        float32
+	WaitForPresentCpuMs     float32
+	SubmitFrameMs           float32
+	WaitGetPosesCalledMs    float32
+	NewPosesReadyMs         float32
+	NewFrameReadyMs         float32
+	CompositorUpdateStartMs float32
+	CompositorUpdateEndMs   float32
+	CompositorRenderStartMs float32
+	HmdPose                 TrackedDevicePose
+}
+
+// GetFrameTiming teturns true if timing data is filled it.  Sets oldest timing info if framesAgo
+// is larger than the stored history.
+func (comp *Compositor) GetFrameTiming(timing *FrameTiming, framesAgo uint32) bool {
+	var cTimingData C.struct_Compositor_FrameTiming
+	cRet := C.compositor_GetFrameTiming(comp.ptr, &cTimingData, C.uint32_t(framesAgo))
+
+	timing.FrameIndex = uint32(cTimingData.m_nFrameIndex)
+	timing.NumFramePresents = uint32(cTimingData.m_nNumFramePresents)
+	timing.NumMisPresented = uint32(cTimingData.m_nNumMisPresented)
+	timing.NumDroppedFrames = uint32(cTimingData.m_nNumDroppedFrames)
+	timing.ReprojectionFlags = uint32(cTimingData.m_nReprojectionFlags)
+	timing.SystemTimeInSeconds = float64(cTimingData.m_flSystemTimeInSeconds)
+	timing.PreSubmitGpuMs = float32(cTimingData.m_flPreSubmitGpuMs)
+	timing.PostSubmitGpuMs = float32(cTimingData.m_flPostSubmitGpuMs)
+	timing.TotalRenderGpuMs = float32(cTimingData.m_flTotalRenderGpuMs)
+	timing.CompositorRenderGpuMs = float32(cTimingData.m_flCompositorRenderGpuMs)
+	timing.CompositorRenderCpuMs = float32(cTimingData.m_flCompositorRenderCpuMs)
+	timing.CompositorIdleCpuMs = float32(cTimingData.m_flCompositorIdleCpuMs)
+	timing.ClientFrameIntervalMs = float32(cTimingData.m_flClientFrameIntervalMs)
+	timing.PresentCallCpuMs = float32(cTimingData.m_flPresentCallCpuMs)
+	timing.WaitForPresentCpuMs = float32(cTimingData.m_flWaitForPresentCpuMs)
+	timing.SubmitFrameMs = float32(cTimingData.m_flSubmitFrameMs)
+	timing.WaitGetPosesCalledMs = float32(cTimingData.m_flWaitGetPosesCalledMs)
+	timing.NewPosesReadyMs = float32(cTimingData.m_flNewPosesReadyMs)
+	timing.NewFrameReadyMs = float32(cTimingData.m_flNewFrameReadyMs)
+	timing.CompositorUpdateStartMs = float32(cTimingData.m_flCompositorUpdateStartMs)
+	timing.CompositorUpdateEndMs = float32(cTimingData.m_flCompositorUpdateEndMs)
+	timing.CompositorRenderStartMs = float32(cTimingData.m_flCompositorRenderStartMs)
+
+	fillTrackedDevicePose(&timing.HmdPose, &cTimingData.m_HmdPose)
+
+	if cRet == 0 {
+		return false
+	}
+
+	return true
+}
+
+// Show returns a formatted string with the timing information. If newlines
+// is true, then each field will be written on its own line in the string.
+func (ft *FrameTiming) Show(newlines bool) string {
+	var b bytes.Buffer
+	nl := " "
+	if newlines {
+		nl = "\n"
+	}
+
+	b.WriteString(fmt.Sprintf("FrameIndex: %v%s", ft.FrameIndex, nl))
+	b.WriteString(fmt.Sprintf("NumFramePresent: %v%s", ft.NumFramePresents, nl))
+	b.WriteString(fmt.Sprintf("NumMisPresented: %v%s", ft.NumMisPresented, nl))
+	b.WriteString(fmt.Sprintf("NumDroppedFrames: %v%s", ft.NumDroppedFrames, nl))
+	b.WriteString(fmt.Sprintf("ReprojectionFlags: %v%s", ft.ReprojectionFlags, nl))
+	b.WriteString(fmt.Sprintf("SystemTimeInSeconds: %v%s", ft.SystemTimeInSeconds, nl))
+	b.WriteString(fmt.Sprintf("PreSubmitGpuMs: %v%s", ft.PreSubmitGpuMs, nl))
+	b.WriteString(fmt.Sprintf("PostSubmitGpuMs: %v%s", ft.PostSubmitGpuMs, nl))
+	b.WriteString(fmt.Sprintf("TotalRenderGpuMs: %v%s", ft.TotalRenderGpuMs, nl))
+	b.WriteString(fmt.Sprintf("CompositorRenderGpuMs: %v%s", ft.CompositorRenderGpuMs, nl))
+	b.WriteString(fmt.Sprintf("CompositorRenderCpuMs: %v%s", ft.CompositorRenderCpuMs, nl))
+	b.WriteString(fmt.Sprintf("CompositorIdleCpuMs: %v%s", ft.CompositorIdleCpuMs, nl))
+	b.WriteString(fmt.Sprintf("ClientFrameIntervalMs: %v%s", ft.ClientFrameIntervalMs, nl))
+	b.WriteString(fmt.Sprintf("PresentCallCpuMs: %v%s", ft.PresentCallCpuMs, nl))
+	b.WriteString(fmt.Sprintf("WaitForPresentCpuMs: %v%s", ft.WaitForPresentCpuMs, nl))
+	b.WriteString(fmt.Sprintf("SubmitFrameMs: %v%s", ft.SubmitFrameMs, nl))
+	b.WriteString(fmt.Sprintf("WaitGetPosesCalledMs: %v%s", ft.WaitGetPosesCalledMs, nl))
+	b.WriteString(fmt.Sprintf("NewPosesReadyMs: %v%s", ft.NewPosesReadyMs, nl))
+	b.WriteString(fmt.Sprintf("NewFrameReadyMs: %v%s", ft.NewFrameReadyMs, nl))
+	b.WriteString(fmt.Sprintf("CompositorUpdateStartMs: %v%s", ft.CompositorUpdateStartMs, nl))
+	b.WriteString(fmt.Sprintf("CompositorUpdateEndMs: %v%s", ft.CompositorUpdateEndMs, nl))
+	b.WriteString(fmt.Sprintf("CompositorRenderStartMs: %v%s", ft.CompositorRenderStartMs, nl))
+
+	return b.String()
 }
 
 /* TODO:
@@ -139,9 +261,7 @@ struct VR_IVRCompositor_FnTable
 	EVRCompositorError (OPENVR_FNTABLE_CALLTYPE *Submit)(EVREye eEye, struct Texture_t * pTexture, struct VRTextureBounds_t * pBounds, EVRSubmitFlags nSubmitFlags);
 	void (OPENVR_FNTABLE_CALLTYPE *ClearLastSubmittedFrame)();
 	void (OPENVR_FNTABLE_CALLTYPE *PostPresentHandoff)();
-	bool (OPENVR_FNTABLE_CALLTYPE *GetFrameTiming)(struct Compositor_FrameTiming * pTiming, uint32_t unFramesAgo);
 	uint32_t (OPENVR_FNTABLE_CALLTYPE *GetFrameTimings)(struct Compositor_FrameTiming * pTiming, uint32_t nFrames);
-	float (OPENVR_FNTABLE_CALLTYPE *GetFrameTimeRemaining)();
 	void (OPENVR_FNTABLE_CALLTYPE *GetCumulativeStats)(struct Compositor_CumulativeStats * pStats, uint32_t nStatsSizeInBytes);
 	void (OPENVR_FNTABLE_CALLTYPE *FadeToColor)(float fSeconds, float fRed, float fGreen, float fBlue, float fAlpha, bool bBackground);
 	struct HmdColor_t (OPENVR_FNTABLE_CALLTYPE *GetCurrentFadeColor)(bool bBackground);

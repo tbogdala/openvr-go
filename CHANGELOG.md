@@ -1,3 +1,8 @@
+Version v0.4.0
+==============
+
+* NEW: ICompositor support for GetFrameTimeRemaining() and GetFrameTiming().
+
 Version v0.3.0
 ==============
 
