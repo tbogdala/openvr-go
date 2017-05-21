@@ -82,7 +82,7 @@ func (comp *Compositor) Submit(eye int, texture uint32) {
 
 // IsPoseValid returns true if a render pose array at the given index has a valid pose.
 func (comp *Compositor) IsPoseValid(i uint) bool {
-	if comp.renderPoseArray[i].bPoseIsValid != 0 {
+	if comp.renderPoseArray[i].bPoseIsValid {
 		return true
 	}
 	return false
@@ -117,11 +117,11 @@ func (comp *Compositor) GetRenderPose(i uint) (tdp TrackedDevicePose) {
 
 	tdp.TrackingResult = int(cTDP.eTrackingResult)
 
-	if cTDP.bPoseIsValid != 0 {
+	if cTDP.bPoseIsValid {
 		tdp.PoseIsValid = true
 	}
 
-	if cTDP.bDeviceIsConnected != 0 {
+	if cTDP.bDeviceIsConnected {
 		tdp.DeviceIsConnected = true
 	}
 
