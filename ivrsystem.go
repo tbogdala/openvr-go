@@ -147,7 +147,7 @@ func (sys *System) GetEyeToHeadTransform(eye int, dest *mgl.Mat3x4) {
 // Returns true for success. Otherwise, returns false, and distortion coordinates are not suitable.
 func (sys *System) ComputeDistortion(eye int, u, v float32, dest *DistortionCoordinates) bool {
 	var cDest C.struct_DistortionCoordinates_t
-	if C.system_ComputeDistortion(sys.ptr, C.EVREye(eye), C.float(u), C.float(v), &cDest) == 0 {
+	if !C.system_ComputeDistortion(sys.ptr, C.EVREye(eye), C.float(u), C.float(v), &cDest) {
 		return false
 	}
 
@@ -162,7 +162,7 @@ func (sys *System) ComputeDistortion(eye int, u, v float32, dest *DistortionCoor
 
 // IsTrackedDeviceConnected returns true if there is a device connected in this slot.
 func (sys *System) IsTrackedDeviceConnected(deviceIndex uint32) bool {
-	if C.system_IsTrackedDeviceConnected(sys.ptr, C.TrackedDeviceIndex_t(deviceIndex)) != 0 {
+	if C.system_IsTrackedDeviceConnected(sys.ptr, C.TrackedDeviceIndex_t(deviceIndex)) {
 		return true
 	}
 	return false
@@ -182,7 +182,7 @@ func (sys *System) GetTrackedDeviceClass(deviceIndex int) int {
 
 // IsInputFocusCapturedByAnotherProcess returns true if input focus is captured by another process.
 func (sys *System) IsInputFocusCapturedByAnotherProcess() bool {
-	if C.system_IsInputFocusCapturedByAnotherProcess(sys.ptr) != 0 {
+	if C.system_IsInputFocusCapturedByAnotherProcess(sys.ptr) {
 		return true
 	}
 	return false
@@ -221,7 +221,7 @@ var (
 func (sys *System) PollNextEvent(event *VREvent) bool {
 	result := C.system_PollNextEvent(sys.ptr, &eventBuffer, C.sizeof_struct_VREvent_t)
 
-	if result != 0 {
+	if result {
 		// update the event structure with a copy of the event
 		event.EventType = uint32(eventBuffer.eventType)
 		event.TrackedDeviceIndex = uint32(eventBuffer.trackedDeviceIndex)
@@ -256,7 +256,7 @@ var (
 func (sys *System) GetControllerState(deviceIndex int, state *ControllerState) bool {
 	result := C.system_GetControllerState(sys.ptr, C.TrackedDeviceIndex_t(deviceIndex), &controllerStateBuffer)
 
-	if result != 0 {
+	if result {
 		state.PacketNum = uint32(controllerStateBuffer.unPacketNum)
 		state.ButtonPressed = uint64(controllerStateBuffer.ulButtonPressed)
 		state.ButtonTouched = uint64(controllerStateBuffer.ulButtonTouched)
