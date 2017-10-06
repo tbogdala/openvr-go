@@ -10,6 +10,20 @@ const (
 	MaxTrackedDeviceCount                       = uint(16)
 	TrackedDeviceIndexOther                     = uint(4294967294)
 	TrackedDeviceIndexInvalid                   = uint(4294967295)
+	InvalidPropertyContainer                    = uint(0)
+	InvalidPropertyTag                          = uint(0)
+	FloatPropertyTag                            = uint(1)
+	Int32PropertyTag                            = uint(2)
+	Uint64PropertyTag                           = uint(3)
+	BoolPropertyTag                             = uint(4)
+	StringPropertyTag                           = uint(5)
+	HmdMatrix34PropertyTag                      = uint(20)
+	HmdMatrix44PropertyTag                      = uint(21)
+	HmdVector3PropertyTag                       = uint(22)
+	HmdVector4PropertyTag                       = uint(23)
+	HiddenAreaPropertyTag                       = uint(30)
+	OpenVRInternalReservedStart                 = 1000
+	OpenVRInternalReservedEnd                   = 10000
 	MaxPropertyStringSize                       = uint(32768)
 	ControllerStateAxisCount                    = uint(5)
 	OverlayHandleInvalid                        = uint(0)
@@ -23,7 +37,7 @@ const (
 	IVRApplicationsVersion                      = "IVRApplications_006"
 	IVRChaperoneVersion                         = "IVRChaperone_003"
 	IVRChaperoneSetupVersion                    = "IVRChaperoneSetup_005"
-	IVRCompositorVersion                        = "IVRCompositor_019"
+	IVRCompositorVersion                        = "IVRCompositor_020"
 	VROverlayMaxKeyLength                       = uint(128)
 	VROverlayMaxNameLength                      = uint(128)
 	MaxOverlayCount                             = uint(64)
@@ -160,6 +174,7 @@ const (
 	DashboardEnableDashboardBool                = "enableDashboard"
 	DashboardArcadeModeBool                     = "arcadeMode"
 	ModelskinSection                            = "modelskins"
+	DriverEnableBool                            = "enable"
 	IVRScreenshotsVersion                       = "IVRScreenshots_001"
 	IVRResourcesVersion                         = "IVRResources_001"
 )
@@ -174,9 +189,11 @@ const (
 
 // ETextureType
 const (
-	TextureTypeDirectX = 0
-	TextureTypeOpenGL  = 1
-	TextureTypeVulkan  = 2
+	TextureTypeDirectX   = 0
+	TextureTypeOpenGL    = 1
+	TextureTypeVulkan    = 2
+	TextureTypeIOSurface = 3
+	TextureTypeDirectX12 = 4
 )
 
 // EColorSpace
@@ -255,6 +272,7 @@ const (
 	PropDriverVersionString                         = 1031
 	PropFirmwareForceUpdateRequiredBool             = 1032
 	PropViveSystemButtonFixRequiredBool             = 1033
+	PropParentDriveUint64                           = 1034
 	PropReportsTimeSinceVSyncBool                   = 2000
 	PropSecondsFromVsyncToPhotonsFloat              = 2001
 	PropDisplayFrequencyFloat                       = 2002
@@ -294,6 +312,11 @@ const (
 	PropDisplaySuppressedBool                       = 2036
 	PropDisplayAllowNightModeBool                   = 2037
 	PropAttachedDeviceIdString                      = 3000
+	PropDisplayMCImageWidthInt32                    = 2038
+	PropDisplayMCImageHeightInt32                   = 2039
+	PropDisplayMCImageNumChannelsInt32              = 2040
+	PropDisplayMCImageDataBinary                    = 2041
+	PropUsesDriverDirectModeBool                    = 2042
 	PropSupportedButtonsUint64                      = 3001
 	PropAxis0TypeInt32                              = 3002
 	PropAxis1TypeInt32                              = 3003
@@ -317,6 +340,10 @@ const (
 	PropNamedIconPathDeviceNotReadyString           = 5006
 	PropNamedIconPathDeviceStandbyString            = 5007
 	PropNamedIconPathDeviceAlertLowString           = 5008
+	PropDisplayHiddenAreaBinaryStart                = 5100
+	PropDisplayHiddenAreaBinaryEnd                  = 5150
+	PropUserConfigPathString                        = 6000
+	PropInstallPathString                           = 6001
 	PropVendorSpecificReservedStart                 = 10000
 	PropVendorSpecificReservedEnd                   = 10999
 )
@@ -334,6 +361,7 @@ const (
 	TrackedPropStringExceedsMaximumLength = 8
 	TrackedPropNotYetAvailable            = 9
 	TrackedPropPermissionDenied           = 10
+	TrackedPropInvalidOperation           = 11
 )
 
 // EVRSubmitFlags
@@ -371,6 +399,7 @@ const (
 	VREventTrackedDeviceRoleChanged                  = 108
 	VREventWatchdogWakeUpRequested                   = 109
 	VREventLensDistortionChanged                     = 110
+	VREventPropertyChanged                           = 111
 	VREventButtonPress                               = 200
 	VREventButtonUnpress                             = 201
 	VREventButtonTouch                               = 202
@@ -417,6 +446,7 @@ const (
 	VREventScreenshotFailed                          = 522
 	VREventSubmitScreenshotToDashboard               = 523
 	VREventScreenshotProgressToDashboard             = 524
+	VREventPrimaryDashboardDeviceChanged             = 525
 	VREventNotificationShown                         = 600
 	VREventNotificationHidden                        = 601
 	VREventNotificationBeginInteraction              = 602
@@ -450,6 +480,7 @@ const (
 	VREventApplicationTransitionNewAppStarted        = 1302
 	VREventApplicationListUpdated                    = 1303
 	VREventApplicationMimeTypeLoad                   = 1304
+	VREventApplicationTransitionNewAppLaunchComplete = 1305
 	VREventCompositorMirrorWindowShown               = 1400
 	VREventCompositorMirrorWindowHidden              = 1401
 	VREventCompositorChaperoneBoundsShown            = 1410
@@ -510,6 +541,7 @@ const (
 	HiddenAreaMeshStandard = 0
 	HiddenAreaMeshInverse  = 1
 	HiddenAreaMeshLineLoop = 2
+	HiddenAreaMeshMax      = 3
 )
 
 // EVRControllerAxisType
@@ -755,6 +787,7 @@ const (
 	VRApplicationPropertyIsDashboardOverlayBool = 60
 	VRApplicationPropertyIsTemplateBool         = 61
 	VRApplicationPropertyIsInstancedBool        = 62
+	VRApplicationPropertyIsInternalBool         = 63
 	VRApplicationPropertyLastLaunchTimeUint64   = 70
 )
 
