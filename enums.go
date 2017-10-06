@@ -5,6 +5,7 @@ package openvr
 
 // OpenVR Constants
 const (
+	DriverNone                                  = uint(4294967295)
 	MaxDriverDebugResponseSize                  = uint(32768)
 	TrackedDeviceIndexHmd                       = uint(0)
 	MaxTrackedDeviceCount                       = uint(16)
@@ -28,7 +29,7 @@ const (
 	ControllerStateAxisCount                    = uint(5)
 	OverlayHandleInvalid                        = uint(0)
 	ScreenshotHandleInvalid                     = uint(0)
-	IVRSystemVersion                            = "IVRSystem_015"
+	IVRSystemVersion                            = "IVRSystem_017"
 	IVRExtendedDisplayVersion                   = "IVRExtendedDisplay_001"
 	IVRTrackedCameraVersion                     = "IVRTrackedCamera_003"
 	MaxApplicationKeyLength                     = uint(128)
@@ -37,12 +38,12 @@ const (
 	IVRApplicationsVersion                      = "IVRApplications_006"
 	IVRChaperoneVersion                         = "IVRChaperone_003"
 	IVRChaperoneSetupVersion                    = "IVRChaperoneSetup_005"
-	IVRCompositorVersion                        = "IVRCompositor_020"
+	IVRCompositorVersion                        = "IVRCompositor_021"
 	VROverlayMaxKeyLength                       = uint(128)
 	VROverlayMaxNameLength                      = uint(128)
 	MaxOverlayCount                             = uint(64)
 	MaxOverlayIntersectionMaskPrimitivesCount   = uint(32)
-	IVROverlayVersion                           = "IVROverlay_014"
+	IVROverlayVersion                           = "IVROverlay_016"
 	ControllerComponentGDC2015                  = "gdc2015"
 	ControllerComponentBase                     = "base"
 	ControllerComponentTip                      = "tip"
@@ -80,6 +81,7 @@ const (
 	SteamVRSpeakersForwardYawOffsetDegreesFloat = "speakersForwardYawOffsetDegrees"
 	SteamVRBaseStationPowerManagementBool       = "basestationPowerManagement"
 	SteamVRNeverKillProcessesBool               = "neverKillProcesses"
+	SteamVRSupersampleScaleFloat                = "supersampleScale"
 	SteamVRRenderTargetMultiplierFloat          = "renderTargetMultiplier"
 	SteamVRAllowAsyncReprojectionBool           = "allowAsyncReprojection"
 	SteamVRAllowReprojectionBool                = "allowInterleavedReprojection"
@@ -97,6 +99,8 @@ const (
 	SteamVRCycleBackgroundImageTimeSecInt32     = "CycleBackgroundImageTimeSec"
 	SteamVRRetailDemoBool                       = "retailDemo"
 	SteamVRIpdOffsetFloat                       = "ipdOffset"
+	SteamVRAllowSupersampleFilteringBool        = "allowSupersampleFiltering"
+	SteamVREnableLinuxVulkanAsyncBool           = "enableLinuxVulkanAsync"
 	LighthouseSection                           = "driver_lighthouse"
 	LighthouseDisableIMUBool                    = "disableimu"
 	LighthouseUseDisambiguationString           = "usedisambiguation"
@@ -137,6 +141,7 @@ const (
 	PerfAllowTimingStoreBool                    = "allowTimingStore"
 	PerfSaveTimingsOnExitBool                   = "saveTimingsOnExit"
 	PerfTestDataFloat                           = "perfTestData"
+	PerfLinuxGPUProfilingBool                   = "linuxGPUProfiling"
 	CollisionBoundsSection                      = "collisionBounds"
 	CollisionBoundsStyleInt32                   = "CollisionBoundsStyle"
 	CollisionBoundsGroundPerimeterOnBool        = "CollisionBoundsGroundPerimeterOn"
@@ -170,6 +175,8 @@ const (
 	PowerTurnOffControllersTimeoutFloat         = "turnOffControllersTimeout"
 	PowerReturnToWatchdogTimeoutFloat           = "returnToWatchdogTimeout"
 	PowerAutoLaunchSteamVROnButtonPress         = "autoLaunchSteamVROnButtonPress"
+	PauseCompositorOnStandbyBool                = "pauseCompositorOnStandby"
+	PowerPauseCompositorOnStandbyBool           = "pauseCompositorOnStandby"
 	DashboardSection                            = "dashboard"
 	DashboardEnableDashboardBool                = "enableDashboard"
 	DashboardArcadeModeBool                     = "arcadeMode"
@@ -177,6 +184,7 @@ const (
 	DriverEnableBool                            = "enable"
 	IVRScreenshotsVersion                       = "IVRScreenshots_001"
 	IVRResourcesVersion                         = "IVRResources_001"
+	IVRDriverManagerVersion                     = "IVRDriverManager_001"
 )
 
 // OpenVR Enums
@@ -219,6 +227,7 @@ const (
 	TrackedDeviceClassController        = 2
 	TrackedDeviceClassGenericTracker    = 3
 	TrackedDeviceClassTrackingReference = 4
+	TrackedDeviceClassDisplayRedirect   = 5
 )
 
 // ETrackedControllerRole
@@ -273,6 +282,7 @@ const (
 	PropFirmwareForceUpdateRequiredBool             = 1032
 	PropViveSystemButtonFixRequiredBool             = 1033
 	PropParentDriveUint64                           = 1034
+	PropResourceRootString                          = 1035
 	PropReportsTimeSinceVSyncBool                   = 2000
 	PropSecondsFromVsyncToPhotonsFloat              = 2001
 	PropDisplayFrequencyFloat                       = 2002
@@ -316,7 +326,11 @@ const (
 	PropDisplayMCImageHeightInt32                   = 2039
 	PropDisplayMCImageNumChannelsInt32              = 2040
 	PropDisplayMCImageDataBinary                    = 2041
-	PropUsesDriverDirectModeBool                    = 2042
+	PropSecondsFromPhotonsToVblankFloat             = 2042
+	PropDriverDirectModeSendsVsyncEventsBool        = 2043
+	PropDisplayDebugModeBool                        = 2044
+	PropGraphicsAdapterLuidUint64                   = 2045
+	PropDriverProvidedChaperonePathString           = 2048
 	PropSupportedButtonsUint64                      = 3001
 	PropAxis0TypeInt32                              = 3002
 	PropAxis1TypeInt32                              = 3003
@@ -344,6 +358,11 @@ const (
 	PropDisplayHiddenAreaBinaryEnd                  = 5150
 	PropUserConfigPathString                        = 6000
 	PropInstallPathString                           = 6001
+	PropHasDisplayComponentBool                     = 6002
+	PropHasControllerComponentBool                  = 6003
+	PropHasCameraComponentBool                      = 6004
+	PropHasDriverDirectModeComponentBool            = 6005
+	PropHasVirtualDisplayComponentBool              = 6006
 	PropVendorSpecificReservedStart                 = 10000
 	PropVendorSpecificReservedEnd                   = 10999
 )
@@ -370,6 +389,7 @@ const (
 	SubmitLensDistortionAlreadyApplied = 1
 	SubmitGlRenderBuffer               = 2
 	SubmitReserved                     = 4
+	SubmitTextureWithPose              = 8
 )
 
 // EVRState
@@ -400,6 +420,8 @@ const (
 	VREventWatchdogWakeUpRequested                   = 109
 	VREventLensDistortionChanged                     = 110
 	VREventPropertyChanged                           = 111
+	VREventWirelessDisconnect                        = 112
+	VREventWirelessReconnect                         = 113
 	VREventButtonPress                               = 200
 	VREventButtonUnpress                             = 201
 	VREventButtonTouch                               = 202
@@ -468,6 +490,7 @@ const (
 	VREventModelSkinSettingsHaveChanged              = 853
 	VREventEnvironmentSettingsHaveChanged            = 854
 	VREventPowerSettingsHaveChanged                  = 855
+	VREventEnableHomeAppSettingsHaveChanged          = 856
 	VREventStatusUpdate                              = 900
 	VREventMCImageUpdated                            = 1000
 	VREventFirmwareUpdateStarted                     = 1100
@@ -481,6 +504,8 @@ const (
 	VREventApplicationListUpdated                    = 1303
 	VREventApplicationMimeTypeLoad                   = 1304
 	VREventApplicationTransitionNewAppLaunchComplete = 1305
+	VREventProcessConnected                          = 1306
+	VREventProcessDisconnected                       = 1307
 	VREventCompositorMirrorWindowShown               = 1400
 	VREventCompositorMirrorWindowHidden              = 1401
 	VREventCompositorChaperoneBoundsShown            = 1410
@@ -494,6 +519,7 @@ const (
 	VREventPerformanceTestDisableCapture             = 1601
 	VREventPerformanceTestFidelityLevel              = 1602
 	VREventMessageOverlayClosed                      = 1650
+	VREventMessageOverlayCloseRequested              = 1651
 	VREventVendorSpecificReservedStart               = 10000
 	VREventVendorSpecificReservedEnd                 = 19999
 )
@@ -602,7 +628,8 @@ const (
 	VRApplicationUtility       = 4
 	VRApplicationVRMonitor     = 5
 	VRApplicationSteamWatchdog = 6
-	VRApplicationMax           = 7
+	VRApplicationBootstrapper  = 7
+	VRApplicationMax           = 8
 )
 
 // EVRFirmwareError
@@ -660,6 +687,11 @@ const (
 	VRInitErrorInitWatchdogDisabledInSettings                   = 132
 	VRInitErrorInitVRDashboardNotFound                          = 133
 	VRInitErrorInitVRDashboardStartupFailed                     = 134
+	VRInitErrorInitVRHomeNotFound                               = 135
+	VRInitErrorInitVRHomeStartupFailed                          = 136
+	VRInitErrorInitRebootingBusy                                = 137
+	VRInitErrorInitFirmwareUpdateBusy                           = 138
+	VRInitErrorInitFirmwareRecoveryBusy                         = 139
 	VRInitErrorDriverFailed                                     = 200
 	VRInitErrorDriverUnknown                                    = 201
 	VRInitErrorDriverHmdUnknown                                 = 202
@@ -686,6 +718,7 @@ const (
 	VRInitErrorCompositorFirmwareRequiresUpdate                 = 402
 	VRInitErrorCompositorOverlayInitFailed                      = 403
 	VRInitErrorCompositorScreenshotsInitFailed                  = 404
+	VRInitErrorCompositorUnableToCreateDevice                   = 405
 	VRInitErrorVendorSpecificUnableToConnectToOculusRuntime     = 1000
 	VRInitErrorVendorSpecificHmdFoundCantOpenDevice             = 1101
 	VRInitErrorVendorSpecificHmdFoundUnableToRequestConfigStart = 1102
@@ -766,6 +799,7 @@ const (
 	VRApplicationErrorOldApplicationQuitting     = 112
 	VRApplicationErrorTransitionAborted          = 113
 	VRApplicationErrorIsTemplate                 = 114
+	VRApplicationErrorSteamVRIsExiting           = 115
 	VRApplicationErrorBufferTooSmall             = 200
 	VRApplicationErrorPropertyNotSet             = 201
 	VRApplicationErrorUnknownProperty            = 202
@@ -774,21 +808,22 @@ const (
 
 // EVRApplicationProperty
 const (
-	VRApplicationPropertyNameString             = 0
-	VRApplicationPropertyLaunchTypeString       = 11
-	VRApplicationPropertyWorkingDirectoryString = 12
-	VRApplicationPropertyBinaryPathString       = 13
-	VRApplicationPropertyArgumentsString        = 14
-	VRApplicationPropertyURLString              = 15
-	VRApplicationPropertyDescriptionString      = 50
-	VRApplicationPropertyNewsURLString          = 51
-	VRApplicationPropertyImagePathString        = 52
-	VRApplicationPropertySourceString           = 53
-	VRApplicationPropertyIsDashboardOverlayBool = 60
-	VRApplicationPropertyIsTemplateBool         = 61
-	VRApplicationPropertyIsInstancedBool        = 62
-	VRApplicationPropertyIsInternalBool         = 63
-	VRApplicationPropertyLastLaunchTimeUint64   = 70
+	VRApplicationPropertyNameString                        = 0
+	VRApplicationPropertyLaunchTypeString                  = 11
+	VRApplicationPropertyWorkingDirectoryString            = 12
+	VRApplicationPropertyBinaryPathString                  = 13
+	VRApplicationPropertyArgumentsString                   = 14
+	VRApplicationPropertyURLString                         = 15
+	VRApplicationPropertyDescriptionString                 = 50
+	VRApplicationPropertyNewsURLString                     = 51
+	VRApplicationPropertyImagePathString                   = 52
+	VRApplicationPropertySourceString                      = 53
+	VRApplicationPropertyIsDashboardOverlayBool            = 60
+	VRApplicationPropertyIsTemplateBool                    = 61
+	VRApplicationPropertyIsInstancedBool                   = 62
+	VRApplicationPropertyIsInternalBool                    = 63
+	VRApplicationPropertyWantsCompositorPauseInStandbyBool = 64
+	VRApplicationPropertyLastLaunchTimeUint64              = 70
 )
 
 // EVRApplicationTransitionState
@@ -837,6 +872,7 @@ const (
 	VRCompositorErrorSharedTexturesNotSupported   = 106
 	VRCompositorErrorIndexOutOfRange              = 107
 	VRCompositorErrorAlreadySubmitted             = 108
+	VRCompositorErrorInvalidBounds                = 109
 )
 
 // VROverlayInputMethod

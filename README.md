@@ -1,10 +1,10 @@
-Openvr-go v0.3.0
+Openvr-go v0.4.0
 ================
 
 Openvr-go is an [Go][golang] programming language wrapper for the [OpenVR SDK][openvr-git]
 published by Valve for VR hardware.
 
-This package is currently synced up to v1.0.6 of OpenVR.
+This package is currently synced up to v1.0.10 of OpenVR.
 
 ![voxels_ss][voxels_ss]
 
