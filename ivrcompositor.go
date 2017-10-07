@@ -95,7 +95,7 @@ func (comp *Compositor) Submit(eye int, texture uint32) {
 
 // IsPoseValid returns true if a render pose array at the given index has a valid pose.
 func (comp *Compositor) IsPoseValid(i uint) bool {
-	if comp.renderPoseArray[i].bPoseIsValid != false {
+	if comp.renderPoseArray[i].bPoseIsValid != C.bool(0) {
 		return true
 	}
 	return false
@@ -141,11 +141,11 @@ func fillTrackedDevicePose(tdp *TrackedDevicePose, cTDP *C.struct_TrackedDeviceP
 
 	tdp.TrackingResult = int(cTDP.eTrackingResult)
 
-	if cTDP.bPoseIsValid != false {
+	if cTDP.bPoseIsValid != C.bool(0) {
 		tdp.PoseIsValid = true
 	}
 
-	if cTDP.bDeviceIsConnected != false {
+	if cTDP.bDeviceIsConnected != C.bool(0) {
 		tdp.DeviceIsConnected = true
 	}
 }
@@ -208,7 +208,7 @@ func (comp *Compositor) GetFrameTiming(timing *FrameTiming, framesAgo uint32) bo
 
 	fillTrackedDevicePose(&timing.HmdPose, &cTimingData.m_HmdPose)
 
-	if cRet == false {
+	if cRet == C.bool(0) {
 		return false
 	}
 
