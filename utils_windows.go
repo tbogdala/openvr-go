@@ -2,6 +2,11 @@
 
 package openvr
 
+/*
+#include <stdio.h>
+#include <stdlib.h>
+#include "openvr_capi.h"
+*/
 import "C"
 
 // convertCBool2Int is a bandaid over the way the bool types end up working out
