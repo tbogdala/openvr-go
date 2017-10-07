@@ -111,11 +111,11 @@ int chaperone_SetInternalInterface() {
     return error;
 }
 
-
 */
 import "C"
 import (
 	"fmt"
+
 	mgl "github.com/go-gl/mathgl/mgl32"
 )
 

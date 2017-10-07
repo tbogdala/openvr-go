@@ -10,7 +10,6 @@ package openvr
 
 extern struct VR_IVRSystem_FnTable* _iSystem;
 
-
 // .___ ____   ______________ _________                                           .__   __
 // |   |\   \ /   /\______   \\_   ___ \   ____    _____  ______    ____    ______|__|_/  |_   ____  _______
 // |   | \   Y   /  |       _//    \  \/  /  _ \  /     \ \____ \  /  _ \  /  ___/|  |\   __\ /  _ \ \_  __ \
@@ -95,7 +94,7 @@ func (comp *Compositor) Submit(eye int, texture uint32) {
 
 // IsPoseValid returns true if a render pose array at the given index has a valid pose.
 func (comp *Compositor) IsPoseValid(i uint) bool {
-	if comp.renderPoseArray[i].bPoseIsValid != C.bool(0) {
+	if convertCBool2Int(comp.renderPoseArray[i].bPoseIsValid) != 0 {
 		return true
 	}
 	return false
@@ -141,11 +140,11 @@ func fillTrackedDevicePose(tdp *TrackedDevicePose, cTDP *C.struct_TrackedDeviceP
 
 	tdp.TrackingResult = int(cTDP.eTrackingResult)
 
-	if cTDP.bPoseIsValid != C.bool(0) {
+	if convertCBool2Int(cTDP.bPoseIsValid) != 0 {
 		tdp.PoseIsValid = true
 	}
 
-	if cTDP.bDeviceIsConnected != C.bool(0) {
+	if convertCBool2Int(cTDP.bDeviceIsConnected) != 0 {
 		tdp.DeviceIsConnected = true
 	}
 }
@@ -208,7 +207,7 @@ func (comp *Compositor) GetFrameTiming(timing *FrameTiming, framesAgo uint32) bo
 
 	fillTrackedDevicePose(&timing.HmdPose, &cTimingData.m_HmdPose)
 
-	if cRet == C.bool(0) {
+	if convertCBool2Int(cRet) == 0 {
 		return false
 	}
 
