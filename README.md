@@ -48,7 +48,7 @@ This does assume that you have the native GLFW 3.1 library installed already
 accessible to Go tools.
 
 Additionally, the appropriate `openvr_api.dll` or `libopenvr_api.so` file from
-`vendor/openvr/bin/<platform>` will either need to be copied into each example directory
+`vendored/openvr/bin/<platform>` will either need to be copied into each example directory
 being built or it will need to be accessible system wide.
 
 Each sample can be built by going to that directory in a shell and executing
@@ -57,7 +57,7 @@ a `go build` command. For example:
 ```bash
 cd $GOPATH/src/github.com/tbogdala/openvr-go/examples/basiccube
 go build
-cp ../../vendor/openvr/bin/win64/openvr_api.dll .
+cp ../../vendored/openvr/bin/win64/openvr_api.dll .
 ./basiccube.exe
 ```
 
