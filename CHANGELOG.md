@@ -1,3 +1,8 @@
+Version v0.4.1
+==============
+
+* BUG: Build fixes for Linux systems.
+
 Version v0.4.0
 ==============
 
