@@ -111,7 +111,6 @@ int chaperone_SetInternalInterface() {
     return error;
 }
 
-
 */
 import "C"
 import (
