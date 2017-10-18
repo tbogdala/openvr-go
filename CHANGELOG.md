@@ -2,7 +2,7 @@ Version v0.4.2
 ==============
 
 * MISC: Changed the `vendor` directory to `vendored` to support including this library with Go's
-  `dep` tool, which currently will drop that vendor flag.
+  `dep` tool, which currently will drop that vendor directory when being pulled into another project.
 
 Version v0.4.1
 ==============
